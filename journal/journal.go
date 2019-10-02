@@ -57,41 +57,19 @@ func WriteTimeline(tagLines []ctags.TagLine, w io.Writer) error {
 		return tagLines[i].TagFile < tagLines[j].TagFile
 	})
 
-	entries := make(map[string][]ctags.TagLine)
-	for _, tagLine := range tagLines {
-		entryTags, ok := entries[tagLine.TagFile]
-		if !ok {
-			entryTags = []ctags.TagLine{}
-		}
-		entries[tagLine.TagFile] = append(entryTags, tagLine)
-	}
+	entries := groupByFile(tagLines)
 
+	// Sort entries by filename so that they are displayed in chronological
+	// order. Because the journal filename format is YYYY-MM-DD, we can sort
+	// lexicographically to achieve chronological order.
+	//
+	// Since we can't sort a map, create a sorted slice of the map's keys.
 	var entryFiles []string
-	for k := range entries {
-		entryFiles = append(entryFiles, k)
-		sort.Slice(entries[k], func(i, j int) bool {
-			var li, lj int
-			var err error
-			for _, tf := range entries[k][i].TagFields {
-				if tf.Name == "line" {
-					li, err = strconv.Atoi(tf.Value)
-					if err != nil {
-						continue
-					}
-					break
-				}
-			}
-			for _, tf := range entries[k][j].TagFields {
-				if tf.Name == "line" {
-					lj, err = strconv.Atoi(tf.Value)
-					if err != nil {
-						continue
-					}
-					break
-				}
-			}
-			return li > lj
-		})
+	for entryFile := range entries {
+		entryFiles = append(entryFiles, entryFile)
+
+		// Also sort each entry's tags so we can later find the first heading.
+		sortByLineNumber(entries[entryFile])
 	}
 	sort.Strings(entryFiles)
 
@@ -113,16 +91,19 @@ func WriteTimeline(tagLines []ctags.TagLine, w io.Writer) error {
 			return err
 		}
 
+		// Write new year when it changes
 		if year != entryDate.Year() {
 			year = entryDate.Year()
 			fmt.Fprintf(w, "\n# %d\n", year)
 		}
 
+		// Write new month when it changes
 		if month != entryDate.Month() {
 			month = entryDate.Month()
 			fmt.Fprintf(w, "\n## %s\n", month)
 		}
 
+		// Write day and link to the entry
 		if entryTitle != "" {
 			fmt.Fprintf(w, "* [%d %s](%s) - %s\n", entryDate.Day(), entryDate.Weekday(), entryFile, entryTitle)
 		} else {
@@ -131,4 +112,47 @@ func WriteTimeline(tagLines []ctags.TagLine, w io.Writer) error {
 	}
 
 	return nil
+}
+
+func groupByFile(tagLines []ctags.TagLine) map[string][]ctags.TagLine {
+	entries := make(map[string][]ctags.TagLine)
+	for _, tagLine := range tagLines {
+		entryTags, ok := entries[tagLine.TagFile]
+		if !ok {
+			entryTags = []ctags.TagLine{}
+		}
+		entries[tagLine.TagFile] = append(entryTags, tagLine)
+	}
+
+	for k := range entries {
+		sortByLineNumber(entries[k])
+	}
+
+	return entries
+}
+
+func sortByLineNumber(tagLines []ctags.TagLine) {
+	sort.Slice(tagLines, func(i, j int) bool {
+		var li, lj int
+		var err error
+		for _, tf := range tagLines[i].TagFields {
+			if tf.Name == "line" {
+				li, err = strconv.Atoi(tf.Value)
+				if err != nil {
+					continue
+				}
+				break
+			}
+		}
+		for _, tf := range tagLines[j].TagFields {
+			if tf.Name == "line" {
+				lj, err = strconv.Atoi(tf.Value)
+				if err != nil {
+					continue
+				}
+				break
+			}
+		}
+		return li > lj
+	})
 }
