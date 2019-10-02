@@ -8,12 +8,12 @@ import (
 // A Tag struct represents a tag.
 type Tag struct {
 	gast.BaseInline
-	value *gast.Text
+	Value *gast.Text
 }
 
 // Dump implements Node.Dump.
 func (n *Tag) Dump(source []byte, level int) {
-	segment := n.value.Segment
+	segment := n.Value.Segment
 	m := map[string]string{
 		"Value": string(segment.Value(source)),
 	}
@@ -31,10 +31,6 @@ func (n *Tag) Kind() gast.NodeKind {
 // NewTag returns a new Tag node.
 func NewTag(value *gast.Text) *Tag {
 	return &Tag{
-		value: value,
+		Value: value,
 	}
-}
-
-func (n *Tag) Value() *gast.Text {
-	return n.value
 }

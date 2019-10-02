@@ -71,8 +71,10 @@ func (s *tagParser) Parse(parent gast.Node, block text.Reader, pc parser.Context
 		}
 	}
 
-	value := gast.NewTextSegment(text.NewSegment(segment.Start+1, segment.Start+stop))
+	tagSegment := text.NewSegment(segment.Start+1, segment.Start+stop)
+	value := gast.NewTextSegment(tagSegment)
 	node := ast.NewTag(value)
+	gast.MergeOrAppendTextSegment(node, tagSegment)
 	block.Advance(stop + 1)
 	return node
 }

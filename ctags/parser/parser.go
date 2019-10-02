@@ -59,11 +59,19 @@ func (p EntryParser) Parse(filename string) (lines []ctags.TagLine, err error) {
 		}
 
 		if t, ok := n.(*ast.Tag); ok {
-			segment := t.Value().Segment
+			segment := t.Value.Segment
 			reader.Advance(segment.Start - pos.Start)
 			line, pos = reader.Position()
 
-			tl := parseTag(reader, t)
+			tl := parseNode(reader, n)
+			tl.TagFile = filename
+			lines = append(lines, tl)
+		} else if h, ok := n.(*gast.Heading); ok {
+			segment := h.Lines().At(0)
+			reader.Advance(segment.Start - pos.Start)
+			line, pos = reader.Position()
+
+			tl := parseNode(reader, n)
 			tl.TagFile = filename
 			lines = append(lines, tl)
 		}
@@ -74,10 +82,10 @@ func (p EntryParser) Parse(filename string) (lines []ctags.TagLine, err error) {
 	return lines, err
 }
 
-func parseTag(reader text.Reader, t *ast.Tag) ctags.TagLine {
+func parseNode(reader text.Reader, n gast.Node) ctags.TagLine {
 	line, _ := reader.Position()
 	return ctags.TagLine{
-		TagName:    string(t.Value().Text(reader.Source())),
+		TagName:    string(n.Text(reader.Source())),
 		TagAddress: fmt.Sprintf("%d;\"", line+1),
 		TagFields: []ctags.TagField{
 			ctags.TagField{
@@ -86,7 +94,7 @@ func parseTag(reader text.Reader, t *ast.Tag) ctags.TagLine {
 			},
 			ctags.TagField{
 				Name:  "kind",
-				Value: strings.ToLower(fmt.Sprintf("%s", t.Kind())),
+				Value: strings.ToLower(fmt.Sprintf("%s", n.Kind())),
 			},
 		},
 	}
