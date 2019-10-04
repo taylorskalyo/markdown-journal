@@ -21,13 +21,15 @@ const (
 // that look like journal entries. It returns a list of the entries it finds.
 // If recurse is true, Files will recurse into subdirectories.
 func Files(paths []string, recurse bool) (entries []string, err error) {
-	for _, path := range paths {
-		err = filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+	for _, pathArg := range paths {
+		err = filepath.Walk(pathArg, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
 
-			if info.IsDir() && !recurse {
+			// Only visit a directory if it was supplied as an argument or recurse
+			// option is true.
+			if info.IsDir() && path != pathArg && !recurse {
 				return filepath.SkipDir
 			}
 

@@ -17,7 +17,7 @@ func init() {
 }
 
 var timelineCommand = &cobra.Command{
-	Use:   "timeline [files]",
+	Use:   "timeline [paths]",
 	Short: "Display a timeline view",
 	Long:  `This command displays a timeline view of journal entries.`,
 	Args:  cobra.ArbitraryArgs,

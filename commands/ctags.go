@@ -23,12 +23,12 @@ func init() {
 	nosortDesc := `do not sort tags by tagname`
 	ctagsCommand.Flags().BoolVar(&nosort, "no-sort", false, nosortDesc)
 
-	recurseDesc := `recurse into directories`
+	recurseDesc := `recurse into subdirectories`
 	ctagsCommand.Flags().BoolVarP(&recurse, "recurse", "R", false, recurseDesc)
 }
 
 var ctagsCommand = &cobra.Command{
-	Use:   "ctags [files]",
+	Use:   "ctags [paths]",
 	Short: "Generate ctags",
 	Long:  `This command generates a ctags compatible tags file.`,
 	Args:  cobra.ArbitraryArgs,
