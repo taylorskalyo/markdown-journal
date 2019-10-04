@@ -15,7 +15,12 @@ import (
 	"github.com/taylorskalyo/markdown-journal/ctags"
 )
 
-const dateFormat = "2006-01-02"
+const (
+	dateFormat  = "2006-01-02"
+	yearFormat  = "2006"
+	monthFormat = "January"
+	dayFormat   = "02 Mon"
+)
 
 // Files finds journal entry files. It walks each given path checking for ones
 // that look like journal entries. It returns a list of the entries it finds.
@@ -94,20 +99,21 @@ func WriteTimeline(tagLines []ctags.TagLine, w io.Writer) error {
 		// Write new year when it changes
 		if year != entryDate.Year() {
 			year = entryDate.Year()
-			fmt.Fprintf(w, "\n# %d\n", year)
+			fmt.Fprintf(w, "\n# %s\n", entryDate.Format(yearFormat))
 		}
 
 		// Write new month when it changes
 		if month != entryDate.Month() {
 			month = entryDate.Month()
-			fmt.Fprintf(w, "\n## %s\n", month)
+			fmt.Fprintf(w, "\n## %s\n", entryDate.Format(monthFormat))
 		}
 
-		// Write day and link to the entry
+		// Write day, and link to the entry
+		fmt.Fprintf(w, "* [%s](%s)", entryDate.Format(dayFormat), entryFile)
 		if entryTitle != "" {
-			fmt.Fprintf(w, "* [%d %s](%s) - %s\n", entryDate.Day(), entryDate.Weekday(), entryFile, entryTitle)
+			fmt.Fprintf(w, " - %s\n", entryTitle)
 		} else {
-			fmt.Fprintf(w, "* [%d %s](%s)\n", entryDate.Day(), entryDate.Weekday(), entryFile)
+			fmt.Fprintf(w, "\n")
 		}
 	}
 
