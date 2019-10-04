@@ -6,7 +6,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/taylorskalyo/markdown-journal/ctags"
-	"github.com/taylorskalyo/markdown-journal/ctags/parser"
 	"github.com/taylorskalyo/markdown-journal/journal"
 )
 
@@ -36,7 +35,7 @@ var timelineCommand = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		p := parser.NewEntryParser()
+		p := journal.NewEntryParser()
 		for _, filename := range filenames {
 			lines, err := p.Parse(filename)
 			if err != nil {

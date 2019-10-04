@@ -7,7 +7,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/taylorskalyo/markdown-journal/ctags"
-	"github.com/taylorskalyo/markdown-journal/ctags/parser"
 	"github.com/taylorskalyo/markdown-journal/journal"
 )
 
@@ -49,7 +48,7 @@ var ctagsCommand = &cobra.Command{
 		}
 
 		for _, filename := range filenames {
-			p := parser.NewEntryParser()
+			p := journal.NewEntryParser()
 			lines, err := p.Parse(filename)
 			if err != nil {
 				log.Fatal(err)

@@ -1,4 +1,4 @@
-package parser
+package journal
 
 import (
 	"fmt"
@@ -16,10 +16,12 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
+// EntryParser parses entry file contents into ctags tags.
 type EntryParser struct {
 	parser.Parser
 }
 
+// NewEntryParser returns a new EntryParser.
 func NewEntryParser() EntryParser {
 	p := goldmark.DefaultParser()
 	p.AddOptions(parser.WithInlineParsers(
@@ -37,6 +39,7 @@ func NewEntryParser() EntryParser {
 	}
 }
 
+// Parse parses the given entry into ctags tags.
 func (p EntryParser) Parse(filename string) (lines []ctags.TagLine, err error) {
 	source, err := ioutil.ReadFile(filename)
 	if err != nil {
