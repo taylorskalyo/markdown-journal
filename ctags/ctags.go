@@ -95,14 +95,20 @@ func NewReader(r io.Reader) *Reader {
 	}
 }
 
+func (tl TagLine) valid() bool {
+	return tl.TagName != "" && tl.TagFile != "" && tl.TagAddress != ""
+}
+
 // Read reads one entry from r. If there is no data left to be read, Read
 // returns an empty TagLine and io.EOF.
-func (r *Reader) Read() (TagLine, error) {
-	r.scan = r.scanner.Scan()
-	if !r.scan {
-		return TagLine{}, io.EOF
+func (r *Reader) Read() (tl TagLine, err error) {
+	for !tl.valid() {
+		r.scan = r.scanner.Scan()
+		if !r.scan {
+			return tl, io.EOF
+		}
+		tl = parseTagLine(r.scanner.Text())
 	}
-	tl := parseTagLine(r.scanner.Text())
 
 	return tl, nil
 }
