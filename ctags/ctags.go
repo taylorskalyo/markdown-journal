@@ -55,7 +55,7 @@ type Writer struct {
 }
 
 func parseTagField(data string) (tf TagField) {
-	fieldPair := strings.SplitN(data, ":", 1)
+	fieldPair := strings.SplitN(data, ":", 2)
 	if len(fieldPair) > 1 {
 		tf.Name = fieldPair[0]
 		tf.Value = fieldPair[1]
