@@ -110,8 +110,14 @@ func (r *Reader) Read() (TagLine, error) {
 // ReadAll reads all the remaining entries from r.
 func (r *Reader) ReadAll() []TagLine {
 	var lines []TagLine
-	for tl, err := r.Read(); err == nil; {
-		lines = append(lines, tl)
+	var tl TagLine
+	var err error
+
+	for err != io.EOF {
+		tl, err = r.Read()
+		if err == nil {
+			lines = append(lines, tl)
+		}
 	}
 
 	return lines
