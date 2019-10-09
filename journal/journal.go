@@ -72,25 +72,16 @@ func groupByFile(tagLines []ctags.TagLine) map[string][]ctags.TagLine {
 func sortByLineNumber(tagLines []ctags.TagLine) {
 	sort.Slice(tagLines, func(i, j int) bool {
 		var li, lj int
-		var err error
-		for _, tf := range tagLines[i].TagFields {
-			if tf.Name == "line" {
-				li, err = strconv.Atoi(tf.Value)
-				if err != nil {
-					continue
-				}
-				break
-			}
+		var v string
+		var ok bool
+
+		if v, ok = tagLines[i].TagFields["line"]; ok {
+			li, _ = strconv.Atoi(v)
 		}
-		for _, tf := range tagLines[j].TagFields {
-			if tf.Name == "line" {
-				lj, err = strconv.Atoi(tf.Value)
-				if err != nil {
-					continue
-				}
-				break
-			}
+		if v, ok = tagLines[j].TagFields["line"]; ok {
+			lj, _ = strconv.Atoi(v)
 		}
+
 		return li > lj
 	})
 }

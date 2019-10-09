@@ -40,10 +40,8 @@ func WriteTimeline(tagLines []ctags.TagLine, w io.Writer) error {
 		var entryTitle string
 
 		for _, entryTag := range entries[entryFile] {
-			for _, field := range entryTag.TagFields {
-				if field.Name == "kind" && field.Value == "heading" {
-					entryTitle = entryTag.TagName
-				}
+			if kind, ok := entryTag.TagFields["kind"]; ok && kind == "heading" {
+				entryTitle = entryTag.TagName
 			}
 		}
 		entryName := strings.TrimSuffix(path.Base(entryFile), path.Ext(entryFile))

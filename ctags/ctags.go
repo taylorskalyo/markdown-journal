@@ -2,6 +2,7 @@ package ctags
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"strings"
@@ -14,17 +15,8 @@ const (
 	tagFieldsPosition
 )
 
-// A TagField has a name, a colon, and a value: “name:value”.
-//
-// - The name consists only of alphabetical characters. Upper and lower case
-// are allowed. Lower case is recommended. Case matters (“kind:” and “Kind: are
-// different tagfields).
-//
-// - The value may be empty. It cannot contain a <Tab>.
-type TagField struct {
-	Name  string
-	Value string
-}
+// TagFields is a map of name/value pairs.
+type TagFields map[string]string
 
 // TagLine represents a single ctags match.
 type TagLine struct {
@@ -39,8 +31,14 @@ type TagLine struct {
 	// be restricted to a line number or a search pattern (Posix).
 	TagAddress string
 
-	// A list of TagFields.
-	TagFields []TagField
+	// A TagField has a name, a colon, and a value: “name:value”.
+	//
+	// - The name consists only of alphabetical characters. Upper and lower case
+	// are allowed. Lower case is recommended. Case matters (“kind:” and “Kind:
+	// are different tagfields).
+	//
+	// - The value may be empty. It cannot contain a <Tab>.
+	TagFields TagFields
 }
 
 // A Reader reads ctags entries.
@@ -54,14 +52,13 @@ type Writer struct {
 	*bufio.Writer
 }
 
-func parseTagField(data string) (tf TagField) {
+func parseTagField(data string) (string, string) {
 	fieldPair := strings.SplitN(data, ":", 2)
 	if len(fieldPair) > 1 {
-		tf.Name = fieldPair[0]
-		tf.Value = fieldPair[1]
+		return fieldPair[0], fieldPair[1]
 	}
 
-	return tf
+	return "", ""
 }
 
 func parseTagLine(data string) (tl TagLine) {
@@ -75,10 +72,13 @@ func parseTagLine(data string) (tl TagLine) {
 		case tagAddressPosition:
 			tl.TagAddress = property
 		case tagFieldsPosition:
-			for _, field := range strings.Fields(property) {
-				tf := parseTagField(field)
-				if tf != (TagField{}) {
-					tl.TagFields = append(tl.TagFields, tf)
+			fields := strings.Fields(property)
+			tl.TagFields = make(TagFields, len(fields))
+
+			for _, field := range fields {
+				key, value := parseTagField(field)
+				if key != "" {
+					tl.TagFields[key] = value
 				}
 			}
 		}
@@ -130,22 +130,30 @@ func (r *Reader) ReadAll() []TagLine {
 }
 
 // String implements Stringer.String() from the strings package.
-func (tf TagField) String() string {
-	return fmt.Sprintf("%s:%s", tf.Name, tf.Value)
+func (tf TagFields) String() string {
+	b := new(bytes.Buffer)
+	first := true
+	for key, value := range tf {
+		if first {
+			first = false
+		} else {
+			fmt.Fprintf(b, " ")
+		}
+		fmt.Fprintf(b, "%s:%s", key, value)
+	}
+
+	return b.String()
 }
 
 // String implements Stringer.String() from the strings package.
 func (tl TagLine) String() string {
-	fields := []string{}
-	for _, field := range tl.TagFields {
-		fields = append(fields, field.String())
-	}
 	properties := []string{
 		tl.TagName,
 		tl.TagFile,
 		tl.TagAddress,
-		strings.Join(fields, " "),
+		tl.TagFields.String(),
 	}
+
 	return strings.Join(properties, "\t")
 }
 
