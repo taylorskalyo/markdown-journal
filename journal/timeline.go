@@ -18,7 +18,7 @@ func WriteTimeline(tagLines []ctags.TagLine, w io.Writer) error {
 		return tagLines[i].TagFile < tagLines[j].TagFile
 	})
 
-	entries := groupByFile(tagLines)
+	j := newJournal(tagLines)
 
 	// Sort entries by filename so that they are displayed in chronological
 	// order. Because the journal filename format is YYYY-MM-DD, we can sort
@@ -26,11 +26,8 @@ func WriteTimeline(tagLines []ctags.TagLine, w io.Writer) error {
 	//
 	// Since we can't sort a map, create a sorted slice of the map's keys.
 	var entryFiles []string
-	for entryFile := range entries {
+	for entryFile := range j.entries {
 		entryFiles = append(entryFiles, entryFile)
-
-		// Also sort each entry's labels so we can later find the first heading.
-		sortByLineNumber(entries[entryFile])
 	}
 	sort.Strings(entryFiles)
 
@@ -39,10 +36,9 @@ func WriteTimeline(tagLines []ctags.TagLine, w io.Writer) error {
 	for _, entryFile := range entryFiles {
 		var entryTitle string
 
-		for _, entryTag := range entries[entryFile] {
-			if kind, ok := entryTag.TagFields["kind"]; ok && kind == "heading" {
-				entryTitle = entryTag.TagName
-			}
+		n := j.entries[entryFile]
+		if kind, ok := n.TagFields["kind"]; ok && kind == "heading" {
+			entryTitle = n.TagName
 		}
 		entryName := strings.TrimSuffix(path.Base(entryFile), path.Ext(entryFile))
 		entryDate, err := time.Parse(dateFormat, entryName)

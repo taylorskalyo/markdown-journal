@@ -17,6 +17,55 @@ const (
 	dayFormat   = "02 Mon"
 )
 
+type journal struct {
+	// entries maps tagfiles to tags. These tags represent each tag in the file.
+	entries map[string]*tagNode
+
+	// labels maps label names to a slice of tags. For each tag, kind == "label".
+	labels map[string][]*tagNode
+}
+
+// tagLines attaches the methods of sort.Interface to []ctags.TagLine, sorting
+// in increasing order.
+type tagLines []ctags.TagLine
+
+type tagNode struct {
+	ctags.TagLine
+	next *tagNode
+	prev *tagNode
+}
+
+func newJournal(tags tagLines) journal {
+	entries := make(map[string]*tagNode)
+	labels := make(map[string][]*tagNode)
+
+	sort.Sort(sort.Reverse(tags))
+	for _, tag := range tags {
+
+		// Prepend tag. When done, tags will appear in increasing order.
+		n := &tagNode{TagLine: tag}
+		head, ok := entries[tag.TagFile]
+		if ok {
+			head.prev = n
+			n.next = head
+		}
+		entries[tag.TagFile] = n
+
+		if k, ok := tag.TagFields["kind"]; ok && k == "label" {
+			l, ok := labels[tag.TagName]
+			if !ok {
+				labels[tag.TagName] = []*tagNode{}
+			}
+			labels[tag.TagName] = append(l, n)
+		}
+	}
+
+	return journal{
+		entries: entries,
+		labels:  labels,
+	}
+}
+
 // Files finds journal entry files. It walks each given path checking for ones
 // that look like journal entries. It returns a list of the entries it finds.
 // If recurse is true, Files will recurse into subdirectories.
@@ -52,36 +101,30 @@ func isJournalFile(file string) bool {
 	return re.MatchString(file)
 }
 
-func groupByFile(tagLines []ctags.TagLine) map[string][]ctags.TagLine {
-	entries := make(map[string][]ctags.TagLine)
-	for _, tagLine := range tagLines {
-		entryTags, ok := entries[tagLine.TagFile]
-		if !ok {
-			entryTags = []ctags.TagLine{}
-		}
-		entries[tagLine.TagFile] = append(entryTags, tagLine)
+func (t tagLines) Len() int      { return len(t) }
+func (t tagLines) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
+
+// Sort by tagfile and line number in increasing order. Headings appear first.
+func (t tagLines) Less(i, j int) bool {
+	var li, lj int
+	var v string
+	var ok bool
+
+	if t[i].TagFile != t[j].TagFile {
+		return t[i].TagFile < t[j].TagFile
 	}
 
-	for k := range entries {
-		sortByLineNumber(entries[k])
+	if v, ok = t[i].TagFields["line"]; ok {
+		li, _ = strconv.Atoi(v)
+	}
+	if v, ok = t[j].TagFields["line"]; ok {
+		lj, _ = strconv.Atoi(v)
 	}
 
-	return entries
-}
+	if li != lj {
+		return li < lj
+	}
 
-func sortByLineNumber(tagLines []ctags.TagLine) {
-	sort.Slice(tagLines, func(i, j int) bool {
-		var li, lj int
-		var v string
-		var ok bool
-
-		if v, ok = tagLines[i].TagFields["line"]; ok {
-			li, _ = strconv.Atoi(v)
-		}
-		if v, ok = tagLines[j].TagFields["line"]; ok {
-			lj, _ = strconv.Atoi(v)
-		}
-
-		return li > lj
-	})
+	v, ok = t[i].TagFields["kind"]
+	return ok && v == "heading"
 }
