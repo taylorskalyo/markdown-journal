@@ -28,7 +28,7 @@ func NewEntryParser() EntryParser {
 		util.Prioritized(gextension.NewStrikethroughParser(), 500),
 	))
 	p.AddOptions(parser.WithInlineParsers(
-		util.Prioritized(extension.NewTagParser(), 0),
+		util.Prioritized(extension.NewLabelParser(), 0),
 	))
 	p.AddOptions(parser.WithInlineParsers(
 		util.Prioritized(gextension.NewTaskCheckBoxParser(), 0),
@@ -61,7 +61,7 @@ func (p EntryParser) Parse(filename string) (lines []ctags.TagLine, err error) {
 			return s, nil
 		}
 
-		if t, ok := n.(*ast.Tag); ok {
+		if t, ok := n.(*ast.Label); ok {
 			segment := t.Value.Segment
 			reader.Advance(segment.Start - pos.Start)
 			line, pos = reader.Position()

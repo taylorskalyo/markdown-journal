@@ -13,31 +13,31 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
-/* Valid tags:
- *   **:tag:** is strong or emphaized
- *   a tag, :tag:, neighbors punctuation (except ':' or '/')
+/* Valid labels:
+ *   **:label:** is strong or emphaized
+ *   a label, :label:, neighbors punctuation (except ':' or '/')
  *
- * Not tags:
- *   https://notatag.com:3000
- *   Module::notatag::CONSTANT
+ * Not labels:
+ *   https://notalabel.com:3000
+ *   Module::notalabel::CONSTANT
  */
 
-type tagParser struct {
+type labelParser struct {
 }
 
-var defaultTagParser = &tagParser{}
+var defaultLabelParser = &labelParser{}
 
-// NewTagParser return a new InlineParser that parses
-// tag expressions.
-func NewTagParser() parser.InlineParser {
-	return defaultTagParser
+// NewLabelParser return a new InlineParser that parses
+// label expressions.
+func NewLabelParser() parser.InlineParser {
+	return defaultLabelParser
 }
 
-func (s *tagParser) Trigger() []byte {
+func (s *labelParser) Trigger() []byte {
 	return []byte{':'}
 }
 
-func isTagRune(r rune) bool {
+func isLabelRune(r rune) bool {
 	return r == '-' || r == '_' || unicode.IsLetter(r) || unicode.IsDigit(r)
 }
 
@@ -45,7 +45,7 @@ func isBoundaryRune(r rune) bool {
 	return r != ':' && r != '/' && !unicode.IsLetter(r) && !unicode.IsDigit(r)
 }
 
-func (s *tagParser) Parse(parent gast.Node, block text.Reader, pc parser.Context) gast.Node {
+func (s *labelParser) Parse(parent gast.Node, block text.Reader, pc parser.Context) gast.Node {
 	before := block.PrecendingCharacter()
 	if !isBoundaryRune(before) {
 		return nil
@@ -55,7 +55,7 @@ func (s *tagParser) Parse(parent gast.Node, block text.Reader, pc parser.Context
 	stop := 1
 	for ; stop < len(line) && line[stop] != ':'; stop++ {
 		r := util.ToRune(line, stop)
-		if !isTagRune(r) {
+		if !isLabelRune(r) {
 			return nil
 		}
 	}
@@ -71,27 +71,27 @@ func (s *tagParser) Parse(parent gast.Node, block text.Reader, pc parser.Context
 		}
 	}
 
-	tagSegment := text.NewSegment(segment.Start+1, segment.Start+stop)
-	value := gast.NewTextSegment(tagSegment)
-	node := ast.NewTag(value)
-	gast.MergeOrAppendTextSegment(node, tagSegment)
+	labelSegment := text.NewSegment(segment.Start+1, segment.Start+stop)
+	value := gast.NewTextSegment(labelSegment)
+	node := ast.NewLabel(value)
+	gast.MergeOrAppendTextSegment(node, labelSegment)
 	block.Advance(stop + 1)
 	return node
 }
 
-func (s *tagParser) CloseBlock(parent gast.Node, pc parser.Context) {
+func (s *labelParser) CloseBlock(parent gast.Node, pc parser.Context) {
 	// nothing to do
 }
 
-// TagHTMLRenderer is a renderer.NodeRenderer implementation that
-// renders Tag nodes.
-type TagHTMLRenderer struct {
+// LabelHTMLRenderer is a renderer.NodeRenderer implementation that
+// renders Label nodes.
+type LabelHTMLRenderer struct {
 	html.Config
 }
 
-// NewTagHTMLRenderer returns a new TagHTMLRenderer.
-func NewTagHTMLRenderer(opts ...html.Option) renderer.NodeRenderer {
-	r := &TagHTMLRenderer{
+// NewLabelHTMLRenderer returns a new LabelHTMLRenderer.
+func NewLabelHTMLRenderer(opts ...html.Option) renderer.NodeRenderer {
+	r := &LabelHTMLRenderer{
 		Config: html.NewConfig(),
 	}
 	for _, opt := range opts {
@@ -101,21 +101,21 @@ func NewTagHTMLRenderer(opts ...html.Option) renderer.NodeRenderer {
 }
 
 // RegisterFuncs implements renderer.NodeRenderer.RegisterFuncs.
-func (r *TagHTMLRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
+func (r *LabelHTMLRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
 	// nothing to do
 }
 
-type tag struct {
+type label struct {
 }
 
-// Tag is an extension that allow you to use tag expression like '~~text~~' .
-var Tag = &tag{}
+// Label is an extension that allow you to use label expression like ':text:' .
+var Label = &label{}
 
-func (e *tag) Extend(m goldmark.Markdown) {
+func (e *label) Extend(m goldmark.Markdown) {
 	m.Parser().AddOptions(parser.WithInlineParsers(
-		util.Prioritized(NewTagParser(), 0),
+		util.Prioritized(NewLabelParser(), 0),
 	))
 	m.Renderer().AddOptions(renderer.WithNodeRenderers(
-		util.Prioritized(NewTagHTMLRenderer(), 0),
+		util.Prioritized(NewLabelHTMLRenderer(), 0),
 	))
 }

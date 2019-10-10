@@ -24,13 +24,13 @@ markdown-journal --help
 
 - It provides commands for creating indexes of dated markdown files.
   - The `timeline` command generates a markdown formated index of entries in chronological order.
-  - The `taglist` command (not yet implemented) generates a markdown formated list of entries, grouped by tag.
-- It provides a way to tag markdown files. Tags can also be thought of a keywords or categories.
-  - Tags can appear anywhere in a markdown file (except for code blocks and code fences).
-  - Tags look like this: `:tag:`.
-  - Any combination of letters, digits, underscores (`_`), and dashes (`-`) between two colons (`:`) creates a tag.
+  - The `labels` command (not yet implemented) generates a markdown formated list of entries, grouped by labels.
+- It provides a way to label markdown files. Labels can also be thought of a keywords or categories.
+  - Labels can appear anywhere in a markdown file (except for code blocks and code fences).
+  - Labels look like this: `:label:`.
+  - Any combination of letters, digits, underscores (`_`), and dashes (`-`) between two colons (`:`) creates a label.
 - It generates ctags compatible tag files.
-  - A ctags file can be used to quickly locate journal tags and headers.
+  - A ctags file can be used to quickly locate journal label and headers.
   - Other programs can use these ctags files to provide additional functionality (e.g. `tags` command or [tagbar](https://github.com/majutsushi/tagbar) plugin in vim)
 
 # What markdown-journal is not
@@ -44,6 +44,6 @@ markdown-journal --help
 
 # Planned features
 
-- [ ] Add a `taglist` command to generate a markdown formated list of entries, grouped by tag.
-- [ ] Optionally pull tags from hugo/jekyll front matter.
+- [ ] Add a `labels` command to generate a markdown formated list of entries, grouped by label.
+- [ ] Optionally pull label from hugo/jekyll front matter.
 - [ ] Better feature parity with ctags/universl-ctags/exuberant-ctags

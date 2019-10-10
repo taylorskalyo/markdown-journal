@@ -29,7 +29,7 @@ func WriteTimeline(tagLines []ctags.TagLine, w io.Writer) error {
 	for entryFile := range entries {
 		entryFiles = append(entryFiles, entryFile)
 
-		// Also sort each entry's tags so we can later find the first heading.
+		// Also sort each entry's labels so we can later find the first heading.
 		sortByLineNumber(entries[entryFile])
 	}
 	sort.Strings(entryFiles)

@@ -5,14 +5,14 @@ import (
 	gast "github.com/yuin/goldmark/ast"
 )
 
-// A Tag struct represents a tag.
-type Tag struct {
+// A Label struct represents a label.
+type Label struct {
 	gast.BaseInline
 	Value *gast.Text
 }
 
 // Dump implements Node.Dump.
-func (n *Tag) Dump(source []byte, level int) {
+func (n *Label) Dump(source []byte, level int) {
 	segment := n.Value.Segment
 	m := map[string]string{
 		"Value": string(segment.Value(source)),
@@ -20,17 +20,17 @@ func (n *Tag) Dump(source []byte, level int) {
 	gast.DumpHelper(n, source, level, m, nil)
 }
 
-// KindTag is a NodeKind of the Tag node.
-var KindTag = gast.NewNodeKind("Tag")
+// KindLabel is a NodeKind of the Label node.
+var KindLabel = gast.NewNodeKind("Label")
 
 // Kind implements Node.Kind.
-func (n *Tag) Kind() gast.NodeKind {
-	return KindTag
+func (n *Label) Kind() gast.NodeKind {
+	return KindLabel
 }
 
-// NewTag returns a new Tag node.
-func NewTag(value *gast.Text) *Tag {
-	return &Tag{
+// NewLabel returns a new Label node.
+func NewLabel(value *gast.Text) *Label {
+	return &Label{
 		Value: value,
 	}
 }
