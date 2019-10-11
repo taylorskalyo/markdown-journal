@@ -89,7 +89,7 @@ func parseNode(reader text.Reader, n gast.Node) ctags.TagLine {
 	line, _ := reader.Position()
 	return ctags.TagLine{
 		TagName:    string(n.Text(reader.Source())),
-		TagAddress: fmt.Sprintf("%d;\"", line+1),
+		TagAddress: fmt.Sprintf("%d", line+1),
 		TagFields: ctags.TagFields{
 			"line": fmt.Sprintf("%d", line+1),
 			"kind": strings.ToLower(n.Kind().String()),
