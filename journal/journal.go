@@ -2,8 +2,8 @@ package journal
 
 import (
 	"os"
+	"path"
 	"path/filepath"
-	"regexp"
 	"sort"
 
 	"github.com/taylorskalyo/markdown-journal/ctags"
@@ -16,17 +16,26 @@ const (
 	dayFormat   = "02 Mon"
 )
 
-type journal struct {
-	// entries maps tagfiles to tags. These tags represent each tag in the file.
-	entries map[string]*tagNode
-
-	// labels maps label names to a slice of tags. For each tag, kind == "label".
-	labels map[string][]*tagNode
+// Label is a keyword that appears in a journal entry.
+type Label struct {
+	Name        string
+	Occurrences []LabelTag
 }
 
-// tagLines attaches the methods of sort.Interface to []ctags.TagLine, sorting
+// LabelTag is an occurrence of a Label within a journal entry.
+type LabelTag struct {
+	*tagNode
+}
+
+// Journal is a collection of entries and labels.
+type Journal struct {
+	Entries []Entry
+	Labels  []Label
+}
+
+// TagLines attaches the methods of sort.Interface to []ctags.TagLine, sorting
 // in increasing order.
-type tagLines []ctags.TagLine
+type TagLines []ctags.TagLine
 
 type tagNode struct {
 	ctags.TagLine
@@ -34,35 +43,54 @@ type tagNode struct {
 	prev *tagNode
 }
 
-func newJournal(tags tagLines) journal {
-	entries := make(map[string]*tagNode)
-	labels := make(map[string][]*tagNode)
+// NewJournal returns a new Journal.
+func NewJournal(tags TagLines) (j Journal) {
+	var err error
+	var e Entry
+	var l Label
+	var occurrences []LabelTag
 
 	sort.Sort(sort.Reverse(tags))
 	for _, tag := range tags {
+		if tag.TagFile != e.File {
+			if e.File != "" {
+				j.Entries = append(j.Entries, e)
+			}
 
-		// Prepend tag. When done, tags will appear in increasing order.
+			e, err = NewEntry(tag.TagFile)
+			if err != nil {
+				continue
+			}
+		}
+
+		// Prepend tag. When done, an Entry's tags will appear in increasing order
+		// by line number, headings first.
 		n := &tagNode{TagLine: tag}
-		head, ok := entries[tag.TagFile]
-		if ok {
+		head := e.FirstTag
+		if head != nil {
 			head.prev = n
 			n.next = head
 		}
-		entries[tag.TagFile] = n
+		e.FirstTag = n
 
 		if tag.Kind() == "label" {
-			l, ok := labels[tag.TagName]
-			if !ok {
-				labels[tag.TagName] = []*tagNode{}
-			}
-			labels[tag.TagName] = append(l, n)
+			occurrences = append(occurrences, LabelTag{n})
 		}
 	}
 
-	return journal{
-		entries: entries,
-		labels:  labels,
+	sort.Slice(occurrences, func(i, j int) bool {
+		return occurrences[i].TagName < occurrences[j].TagName
+	})
+
+	for _, o := range occurrences {
+		if o.TagName != l.Name {
+			l = Label{Name: o.TagName}
+			j.Labels = append(j.Labels, l)
+		}
+		l.Occurrences = append(l.Occurrences, o)
 	}
+
+	return j
 }
 
 // Files finds journal entry files. It walks each given path checking for ones
@@ -96,15 +124,14 @@ func Files(paths []string, recurse bool) (entries []string, err error) {
 }
 
 func isJournalFile(file string) bool {
-	re := regexp.MustCompile(`\d{4}-\d{2}-\d{2}(-.*)?\.md`)
-	return re.MatchString(file)
+	return reEntryFile.MatchString(path.Base(file))
 }
 
-func (t tagLines) Len() int      { return len(t) }
-func (t tagLines) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
+func (t TagLines) Len() int      { return len(t) }
+func (t TagLines) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
 
 // Sort by tagfile then line number in increasing order. Headings appear first.
-func (t tagLines) Less(i, j int) bool {
+func (t TagLines) Less(i, j int) bool {
 	if t[i].TagFile != t[j].TagFile {
 		return t[i].TagFile < t[j].TagFile
 	}

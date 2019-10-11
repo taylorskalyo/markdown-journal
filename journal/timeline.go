@@ -3,65 +3,32 @@ package journal
 import (
 	"fmt"
 	"io"
-	"path"
-	"sort"
-	"strings"
 	"time"
-
-	"github.com/taylorskalyo/markdown-journal/ctags"
 )
 
-// WriteTimeline generates a timeline view of entries, using ctags, and writes
-// the result to a writer.
-func WriteTimeline(tagLines []ctags.TagLine, w io.Writer) error {
-	sort.Slice(tagLines, func(i, j int) bool {
-		return tagLines[i].TagFile < tagLines[j].TagFile
-	})
-
-	j := newJournal(tagLines)
-
-	// Sort entries by filename so that they are displayed in chronological
-	// order. Because the journal filename format is YYYY-MM-DD, we can sort
-	// lexicographically to achieve chronological order.
-	//
-	// Since we can't sort a map, create a sorted slice of the map's keys.
-	var entryFiles []string
-	for entryFile := range j.entries {
-		entryFiles = append(entryFiles, entryFile)
-	}
-	sort.Strings(entryFiles)
-
+// WriteTimeline generates a timeline view of entries and writes the result to
+// a writer.
+func (j Journal) WriteTimeline(w io.Writer) error {
 	var year int
 	var month time.Month
-	for _, entryFile := range entryFiles {
-		var entryTitle string
 
-		n := j.entries[entryFile]
-		if n.Kind() == "heading" {
-			entryTitle = n.TagName
-		}
-		entryName := strings.TrimSuffix(path.Base(entryFile), path.Ext(entryFile))
-		entryDate, err := time.Parse(dateFormat, entryName)
-		if err != nil {
-			return err
-		}
-
+	for _, entry := range j.Entries {
 		// Write new year when it changes
-		if year != entryDate.Year() {
-			year = entryDate.Year()
-			fmt.Fprintf(w, "\n# %s\n", entryDate.Format(yearFormat))
+		if year != entry.Time.Year() {
+			year = entry.Time.Year()
+			fmt.Fprintf(w, "\n# %s\n", entry.Time.Format(yearFormat))
 		}
 
 		// Write new month when it changes
-		if month != entryDate.Month() {
-			month = entryDate.Month()
-			fmt.Fprintf(w, "\n## %s\n", entryDate.Format(monthFormat))
+		if month != entry.Time.Month() {
+			month = entry.Time.Month()
+			fmt.Fprintf(w, "\n## %s\n", entry.Time.Format(monthFormat))
 		}
 
 		// Write day, and link to the entry
-		fmt.Fprintf(w, "* [%s](%s)", entryDate.Format(dayFormat), entryFile)
-		if entryTitle != "" {
-			fmt.Fprintf(w, " - %s\n", entryTitle)
+		fmt.Fprintf(w, "* [%s](%s)", entry.Time.Format(dayFormat), entry.File)
+		if title := entry.Title(); title != "" {
+			fmt.Fprintf(w, " - %s\n", title)
 		} else {
 			fmt.Fprintf(w, "\n")
 		}

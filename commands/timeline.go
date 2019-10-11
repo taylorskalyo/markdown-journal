@@ -49,7 +49,8 @@ var timelineCommand = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		journal.WriteTimeline(tagLines, os.Stdout)
+		j := journal.NewJournal(tagLines)
+		j.WriteTimeline(os.Stdout)
 	},
 }
 
