@@ -37,7 +37,7 @@ func WriteTimeline(tagLines []ctags.TagLine, w io.Writer) error {
 		var entryTitle string
 
 		n := j.entries[entryFile]
-		if kind, ok := n.TagFields["kind"]; ok && kind == "heading" {
+		if n.Kind() == "heading" {
 			entryTitle = n.TagName
 		}
 		entryName := strings.TrimSuffix(path.Base(entryFile), path.Ext(entryFile))

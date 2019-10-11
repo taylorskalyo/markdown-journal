@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 )
 
@@ -70,7 +71,7 @@ func parseTagLine(data string) (tl TagLine) {
 		case tagFilePosition:
 			tl.TagFile = property
 		case tagAddressPosition:
-			tl.TagAddress = property
+			tl.TagAddress = strings.TrimSuffix(property, `;"`)
 		case tagFieldsPosition:
 			fields := strings.Fields(property)
 			tl.TagFields = make(TagFields, len(fields))
@@ -150,11 +151,37 @@ func (tl TagLine) String() string {
 	properties := []string{
 		tl.TagName,
 		tl.TagFile,
-		tl.TagAddress,
+		fmt.Sprintf(`%s;"`, tl.TagAddress),
 		tl.TagFields.String(),
 	}
 
 	return strings.Join(properties, "\t")
+}
+
+// Line is the line on which this tag was found. If the line can't be
+// determined, -1 is returned.
+func (tl TagLine) Line() int {
+	if v, ok := tl.TagFields["line"]; ok {
+		if i, err := strconv.Atoi(v); err == nil {
+			return i
+		}
+	}
+
+	if i, err := strconv.Atoi(tl.TagAddress); err == nil {
+		return i
+	}
+
+	return -1
+}
+
+// Kind is the kind of tag this is. If no "kind" tagfield exists, this returns
+// an empty string.
+func (tl TagLine) Kind() string {
+	if v, ok := tl.TagFields["kind"]; ok {
+		return v
+	}
+
+	return ""
 }
 
 // NewWriter returns a new Writer that writes to w.

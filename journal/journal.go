@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
-	"strconv"
 
 	"github.com/taylorskalyo/markdown-journal/ctags"
 )
@@ -51,7 +50,7 @@ func newJournal(tags tagLines) journal {
 		}
 		entries[tag.TagFile] = n
 
-		if k, ok := tag.TagFields["kind"]; ok && k == "label" {
+		if tag.Kind() == "label" {
 			l, ok := labels[tag.TagName]
 			if !ok {
 				labels[tag.TagName] = []*tagNode{}
@@ -104,27 +103,15 @@ func isJournalFile(file string) bool {
 func (t tagLines) Len() int      { return len(t) }
 func (t tagLines) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
 
-// Sort by tagfile and line number in increasing order. Headings appear first.
+// Sort by tagfile then line number in increasing order. Headings appear first.
 func (t tagLines) Less(i, j int) bool {
-	var li, lj int
-	var v string
-	var ok bool
-
 	if t[i].TagFile != t[j].TagFile {
 		return t[i].TagFile < t[j].TagFile
 	}
 
-	if v, ok = t[i].TagFields["line"]; ok {
-		li, _ = strconv.Atoi(v)
-	}
-	if v, ok = t[j].TagFields["line"]; ok {
-		lj, _ = strconv.Atoi(v)
-	}
-
-	if li != lj {
+	if li, lj := t[i].Line(), t[j].Line(); li != lj {
 		return li < lj
 	}
 
-	v, ok = t[i].TagFields["kind"]
-	return ok && v == "heading"
+	return t[i].Kind() == "heading"
 }
