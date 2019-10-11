@@ -30,13 +30,7 @@ type TagLine struct {
 	// be restricted to a line number or a search pattern (Posix).
 	TagAddress string
 
-	// A TagField has a name, a colon, and a value: “name:value”.
-	//
-	// - The name consists only of alphabetical characters. Upper and lower case
-	// are allowed. Lower case is recommended. Case matters (“kind:” and “Kind:
-	// are different tagfields).
-	//
-	// - The value may be empty. It cannot contain a <Tab>.
+	// A tagfield is a key, value pair.
 	TagFields TagFields
 }
 
@@ -51,10 +45,38 @@ type Writer struct {
 	*bufio.Writer
 }
 
+// A TagField has a name, a colon, and a value: “name:value”. The value may be
+// empty. It cannot contain a <Tab>.
 func parseTagField(data string) (string, string) {
-	fieldPair := strings.SplitN(data, ":", 2)
-	if len(fieldPair) > 1 {
-		return fieldPair[0], fieldPair[1]
+	// The name of the "kind:" field can be omitted. A program reading the tags
+	// file can recognize the "kind:" field by the missing ':'.
+	if !strings.ContainsRune(data, ':') {
+		return "kind", data
+	}
+
+	var name, value string
+
+	p := strings.SplitN(data, ":", 2)
+	switch len(p) {
+	case 2:
+		value = p[1]
+		fallthrough
+	case 1:
+		name = p[0]
+
+		// The name consists only of alphabetical characters. Upper and lower case
+		// are allowed. Case matters (“kind:” and “Kind: are different tagfields).
+		isInvalid := func(r rune) bool { return r < 'A' || r > 'z' }
+		if strings.IndexFunc(name, isInvalid) != -1 {
+			return "", ""
+		}
+
+		value = strings.ReplaceAll(value, `\t`, "\t")
+		value = strings.ReplaceAll(value, `\r`, "\r")
+		value = strings.ReplaceAll(value, `\n`, "\n")
+		value = strings.ReplaceAll(value, `\\`, `\`)
+
+		return name, value
 	}
 
 	return "", ""
