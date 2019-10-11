@@ -78,6 +78,10 @@ func NewJournal(tags TagLines) (j Journal) {
 		}
 	}
 
+	if e.File != "" {
+		j.Entries = append(j.Entries, e)
+	}
+
 	sort.Slice(occurrences, func(i, j int) bool {
 		return occurrences[i].TagName < occurrences[j].TagName
 	})
