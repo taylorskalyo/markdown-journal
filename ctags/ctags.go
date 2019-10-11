@@ -2,7 +2,6 @@ package ctags
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"io"
 	"strconv"
@@ -13,7 +12,6 @@ const (
 	tagNamePosition = iota
 	tagFilePosition
 	tagAddressPosition
-	tagFieldsPosition
 )
 
 // TagFields is a map of name/value pairs.
@@ -72,15 +70,14 @@ func parseTagLine(data string) (tl TagLine) {
 			tl.TagFile = property
 		case tagAddressPosition:
 			tl.TagAddress = strings.TrimSuffix(property, `;"`)
-		case tagFieldsPosition:
-			fields := strings.Fields(property)
-			tl.TagFields = make(TagFields, len(fields))
+		default:
+			if tl.TagFields == nil {
+				tl.TagFields = make(TagFields)
+			}
 
-			for _, field := range fields {
-				key, value := parseTagField(field)
-				if key != "" {
-					tl.TagFields[key] = value
-				}
+			key, value := parseTagField(property)
+			if key != "" {
+				tl.TagFields[key] = value
 			}
 		}
 	}
@@ -131,28 +128,15 @@ func (r *Reader) ReadAll() []TagLine {
 }
 
 // String implements Stringer.String() from the strings package.
-func (tf TagFields) String() string {
-	b := new(bytes.Buffer)
-	first := true
-	for key, value := range tf {
-		if first {
-			first = false
-		} else {
-			fmt.Fprintf(b, " ")
-		}
-		fmt.Fprintf(b, "%s:%s", key, value)
-	}
-
-	return b.String()
-}
-
-// String implements Stringer.String() from the strings package.
 func (tl TagLine) String() string {
 	properties := []string{
 		tl.TagName,
 		tl.TagFile,
 		fmt.Sprintf(`%s;"`, tl.TagAddress),
-		tl.TagFields.String(),
+	}
+
+	for key, value := range tl.TagFields {
+		properties = append(properties, fmt.Sprintf("%s:%s", key, value))
 	}
 
 	return strings.Join(properties, "\t")
