@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -57,29 +58,24 @@ func parseTagField(data string) (string, string) {
 	var name, value string
 
 	p := strings.SplitN(data, ":", 2)
-	switch len(p) {
-	case 2:
+	if len(p) == 2 {
 		value = p[1]
-		fallthrough
-	case 1:
-		name = p[0]
+	}
+	name = p[0]
 
-		// The name consists only of alphabetical characters. Upper and lower case
-		// are allowed. Case matters (“kind:” and “Kind: are different tagfields).
-		isInvalid := func(r rune) bool { return r < 'A' || r > 'z' }
-		if strings.IndexFunc(name, isInvalid) != -1 {
-			return "", ""
-		}
-
-		value = strings.ReplaceAll(value, `\t`, "\t")
-		value = strings.ReplaceAll(value, `\r`, "\r")
-		value = strings.ReplaceAll(value, `\n`, "\n")
-		value = strings.ReplaceAll(value, `\\`, `\`)
-
-		return name, value
+	// The name consists only of alphabetical characters. Upper and lower case
+	// are allowed. Case matters (“kind:” and “Kind: are different tagfields).
+	isInvalid := func(r rune) bool { return r < 'A' || r > 'z' }
+	if strings.IndexFunc(name, isInvalid) != -1 {
+		return "", ""
 	}
 
-	return "", ""
+	value = strings.ReplaceAll(value, `\t`, "\t")
+	value = strings.ReplaceAll(value, `\r`, "\r")
+	value = strings.ReplaceAll(value, `\n`, "\n")
+	value = strings.ReplaceAll(value, `\\`, `\`)
+
+	return name, value
 }
 
 func parseTagLine(data string) (tl TagLine) {
@@ -157,7 +153,15 @@ func (tl TagLine) String() string {
 		fmt.Sprintf(`%s;"`, tl.TagAddress),
 	}
 
-	for key, value := range tl.TagFields {
+	// Sort keys so that output is deterministic.
+	var keys []string
+	for key := range tl.TagFields {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+
+	for _, key := range keys {
+		value := tl.TagFields[key]
 		properties = append(properties, fmt.Sprintf("%s:%s", key, value))
 	}
 
