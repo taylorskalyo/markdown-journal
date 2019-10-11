@@ -53,7 +53,7 @@ func (p EntryParser) Parse(filename string) (lines []ctags.TagLine, err error) {
 	reader.SetPosition(0, text.Segment{})
 	reader.ResetPosition()
 
-	line, pos := reader.Position()
+	_, pos := reader.Position()
 	err = gast.Walk(tree, func(n gast.Node, entering bool) (gast.WalkStatus, error) {
 		s := gast.WalkStatus(gast.WalkContinue)
 
@@ -64,7 +64,7 @@ func (p EntryParser) Parse(filename string) (lines []ctags.TagLine, err error) {
 		if t, ok := n.(*ast.Label); ok {
 			segment := t.Value.Segment
 			reader.Advance(segment.Start - pos.Start)
-			line, pos = reader.Position()
+			_, pos = reader.Position()
 
 			tl := parseNode(reader, n)
 			tl.TagFile = filename
@@ -72,7 +72,7 @@ func (p EntryParser) Parse(filename string) (lines []ctags.TagLine, err error) {
 		} else if h, ok := n.(*gast.Heading); ok {
 			segment := h.Lines().At(0)
 			reader.Advance(segment.Start - pos.Start)
-			line, pos = reader.Position()
+			_, pos = reader.Position()
 
 			tl := parseNode(reader, n)
 			tl.TagFile = filename
