@@ -33,9 +33,11 @@ type Journal struct {
 	Labels  []Label
 }
 
-// TagLines attaches the methods of sort.Interface to []ctags.TagLine, sorting
-// in increasing order.
+// TagLines attaches the methods of sort.Interface to []ctags.TagLine.
 type TagLines []ctags.TagLine
+
+// LabelOccurrences attaches the methods of sort.Interface to []LabelTag.
+type LabelOccurrences []LabelTag
 
 type tagNode struct {
 	ctags.TagLine
@@ -48,7 +50,7 @@ func NewJournal(tags TagLines) (j Journal) {
 	var err error
 	var e Entry
 	var l Label
-	var occurrences []LabelTag
+	var occurrences LabelOccurrences
 
 	sort.Sort(sort.Reverse(tags))
 	for _, tag := range tags {
@@ -82,16 +84,18 @@ func NewJournal(tags TagLines) (j Journal) {
 		j.Entries = append(j.Entries, e)
 	}
 
-	sort.Slice(occurrences, func(i, j int) bool {
-		return occurrences[i].TagName < occurrences[j].TagName
-	})
-
+	sort.Sort(occurrences)
 	for _, o := range occurrences {
 		if o.TagName != l.Name {
+			if l.Name != "" {
+				j.Labels = append(j.Labels, l)
+			}
 			l = Label{Name: o.TagName}
-			j.Labels = append(j.Labels, l)
 		}
 		l.Occurrences = append(l.Occurrences, o)
+	}
+	if l.Name != "" {
+		j.Labels = append(j.Labels, l)
 	}
 
 	return j
@@ -136,13 +140,44 @@ func (t TagLines) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
 
 // Sort by tagfile then line number in increasing order. Headings appear first.
 func (t TagLines) Less(i, j int) bool {
-	if t[i].TagFile != t[j].TagFile {
-		return t[i].TagFile < t[j].TagFile
+	a, b := t[i], t[j]
+
+	if a.TagFile != b.TagFile {
+		return a.TagFile < b.TagFile
 	}
 
-	if li, lj := t[i].Line(), t[j].Line(); li != lj {
-		return li < lj
+	if a.Line() != b.Line() {
+		return a.Line() < b.Line()
 	}
 
-	return t[i].Kind() == "heading"
+	return a.Kind() == "heading"
+}
+
+func (lo LabelOccurrences) Len() int      { return len(lo) }
+func (lo LabelOccurrences) Swap(i, j int) { lo[i], lo[j] = lo[j], lo[i] }
+
+// Sort by label name in increasing order, then tagfile and line number in
+// decreasing order.
+func (lo LabelOccurrences) Less(i, j int) bool {
+	a, b := lo[i], lo[j]
+
+	if a.TagName != b.TagName {
+		return a.TagName < b.TagName
+	}
+
+	if a.TagFile != b.TagFile {
+		return a.TagFile > b.TagFile
+	}
+
+	return a.Line() > b.Line()
+}
+
+func (t tagNode) section() *tagNode {
+	for n := t.prev; n != nil; n = n.prev {
+		if n.Kind() == "heading" {
+			return n
+		}
+	}
+
+	return nil
 }
