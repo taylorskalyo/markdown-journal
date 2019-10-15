@@ -21,14 +21,14 @@ Actual Output:
 %v
 `
 
-func TestReadWrite(t *testing.T) {
+func TestWriteTimeline(t *testing.T) {
 	cases := []struct {
 		name     string
 		input    string
 		expected string
 	}{
 		{
-			`example 1`,
+			`basics`,
 			`
 02 Monday	diary/2006-01-02.md	1;"	kind:heading	line:1
 03 Tuesday	diary/2006-01-03.md	1;"	kind:heading	line:1
@@ -75,6 +75,18 @@ recipe	diary/2006-01-03.md	1;"	kind:label	line:1
 
 ## January
 * [03 Tue](diary/2006-01-03.md) - Tantanmen :recipe:
+			`,
+		},
+		{
+			`title from tagfile`,
+			`
+recipe	diary/2006-01-03-tantanmen-recipe.md	5;"	kind:label	line:5
+			`,
+			`
+# 2006
+
+## January
+* [03 Tue](diary/2006-01-03-tantanmen-recipe.md) - Tantanmen Recipe
 			`,
 		},
 	}
