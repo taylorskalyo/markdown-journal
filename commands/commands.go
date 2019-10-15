@@ -7,6 +7,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	tagfileName string
+	recurse     bool
+)
+
 var application = &cobra.Command{
 	Use:   "markdown-journal",
 	Short: "markdown-journal helps you manage a markdown journal",

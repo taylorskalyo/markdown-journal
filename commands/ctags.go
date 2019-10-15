@@ -10,8 +10,6 @@ import (
 	"github.com/taylorskalyo/markdown-journal/journal"
 )
 
-var tagfileName string
-var recurse bool
 var nosort bool
 
 func init() {
