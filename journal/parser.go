@@ -16,13 +16,13 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
-// EntryParser parses entry file contents into ctags tags.
-type EntryParser struct {
+// FileParser parses entry file markdown contents into ctags tags.
+type FileParser struct {
 	parser.Parser
 }
 
-// NewEntryParser returns a new EntryParser.
-func NewEntryParser() EntryParser {
+// NewFileParser returns a new FileParser.
+func NewFileParser() FileParser {
 	p := goldmark.DefaultParser()
 	p.AddOptions(parser.WithInlineParsers(
 		util.Prioritized(gextension.NewStrikethroughParser(), 500),
@@ -34,13 +34,13 @@ func NewEntryParser() EntryParser {
 		util.Prioritized(gextension.NewTaskCheckBoxParser(), 0),
 	))
 
-	return EntryParser{
+	return FileParser{
 		Parser: p,
 	}
 }
 
 // Parse parses the given entry into ctags tags.
-func (p EntryParser) Parse(filename string) (lines []ctags.TagLine, err error) {
+func (p FileParser) Parse(filename string) (lines []ctags.TagLine, err error) {
 	source, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return lines, err
@@ -49,7 +49,7 @@ func (p EntryParser) Parse(filename string) (lines []ctags.TagLine, err error) {
 	return p.parse(filename, source)
 }
 
-func (p EntryParser) parse(filename string, source []byte) (lines []ctags.TagLine, err error) {
+func (p FileParser) parse(filename string, source []byte) (lines []ctags.TagLine, err error) {
 	reader := text.NewReader(source)
 	tree := p.Parser.Parse(reader)
 

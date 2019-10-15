@@ -48,7 +48,7 @@ var ctagsCommand = &cobra.Command{
 		}
 
 		for _, filename := range filenames {
-			p := journal.NewEntryParser()
+			p := journal.NewFileParser()
 			lines, err := p.Parse(filename)
 			if err != nil {
 				log.Fatal(err)

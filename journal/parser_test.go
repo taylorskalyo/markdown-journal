@@ -65,7 +65,7 @@ bar	2006-01-02.md	2;"	kind:label	line:2
 	for _, tc := range cases {
 		var b bytes.Buffer
 
-		p := NewEntryParser()
+		p := NewFileParser()
 		lines, _ := p.parse(tc.filename, []byte(tc.input))
 		w := ctags.NewWriter(&b)
 		w.WriteAll(lines)

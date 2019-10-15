@@ -73,7 +73,7 @@ func readCtags(tagfileName string) (tagLines []ctags.TagLine, err error) {
 }
 
 func generateCtags(filenames []string) (tagLines []ctags.TagLine, err error) {
-	p := journal.NewEntryParser()
+	p := journal.NewFileParser()
 	for _, filename := range filenames {
 		lines, err := p.Parse(filename)
 		if err != nil {
