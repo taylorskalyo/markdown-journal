@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-var format = `
+var ctagsTestFormat = `
 ============= case %s ================
 Ctags Input:
 -----------
@@ -79,7 +79,7 @@ func TestReadWrite(t *testing.T) {
 		w := NewWriter(&b)
 		w.WriteAll(r.ReadAll())
 		if actual := b.String(); actual != tc.expected {
-			t.Errorf(format, tc.name, tc.input, tc.expected, actual)
+			t.Errorf(ctagsTestFormat, tc.name, tc.input, tc.expected, actual)
 		}
 	}
 }
@@ -111,7 +111,7 @@ func TestLine(t *testing.T) {
 		r := NewReader(strings.NewReader(tc.input))
 		tags := r.ReadAll()
 		if actual := tags[0].Line(); actual != tc.expected {
-			t.Errorf(format, tc.name, tc.input, tc.expected, actual)
+			t.Errorf(ctagsTestFormat, tc.name, tc.input, tc.expected, actual)
 		}
 	}
 }
@@ -143,7 +143,7 @@ func TestKind(t *testing.T) {
 		r := NewReader(strings.NewReader(tc.input))
 		tags := r.ReadAll()
 		if actual := tags[0].Kind(); actual != tc.expected {
-			t.Errorf(format, tc.name, tc.input, tc.expected, actual)
+			t.Errorf(ctagsTestFormat, tc.name, tc.input, tc.expected, actual)
 		}
 	}
 }

@@ -8,7 +8,8 @@ import (
 	"github.com/taylorskalyo/markdown-journal/ctags"
 )
 
-var format = `
+func TestWriteTimeline(t *testing.T) {
+	format := `
 ============= case %s ================
 Ctags Input:
 -----------
@@ -21,7 +22,6 @@ Actual Output:
 %v
 `
 
-func TestWriteTimeline(t *testing.T) {
 	cases := []struct {
 		name     string
 		input    string
@@ -67,14 +67,14 @@ recipe	diary/2006-01-04.md	5;"	kind:label	line:5
 		{
 			`heading and label on same line`,
 			`
-Tantanmen :recipe:	diary/2006-01-03.md	1;"	kind:heading	line:1
+Tantanmen recipe	diary/2006-01-03.md	1;"	kind:heading	line:1
 recipe	diary/2006-01-03.md	1;"	kind:label	line:1
 			`,
 			`
 # 2006
 
 ## January
-* [03 Tue](diary/2006-01-03.md) - Tantanmen :recipe:
+* [03 Tue](diary/2006-01-03.md) - Tantanmen recipe
 			`,
 		},
 		{

@@ -46,6 +46,10 @@ func (p EntryParser) Parse(filename string) (lines []ctags.TagLine, err error) {
 		return lines, err
 	}
 
+	return p.parse(filename, source)
+}
+
+func (p EntryParser) parse(filename string, source []byte) (lines []ctags.TagLine, err error) {
 	reader := text.NewReader(source)
 	tree := p.Parser.Parse(reader)
 
