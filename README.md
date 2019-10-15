@@ -24,7 +24,7 @@ markdown-journal --help
 
 - It provides commands for creating indexes of dated markdown files.
   - The `timeline` command generates a markdown formated index of entries in chronological order.
-  - The `labels` command (not yet implemented) generates a markdown formated list of entries, grouped by labels.
+  - The `labels` command generates a markdown formated list of entries, grouped by labels.
 - It provides a way to label markdown files. Labels can also be thought of a keywords or categories.
   - Labels can appear anywhere in a markdown file (except for code blocks and code fences).
   - Labels look like this: `:label:`.
@@ -41,9 +41,3 @@ markdown-journal --help
   - Journal entries can be located anywhere.
   - However, entry file names must begin with a date and end with the markdown extension (i.e. `YYYY-MM-DD*.md`).
 - It does not force you to use a particular markdown flavor.
-
-# Planned features
-
-- [ ] Add a `labels` command to generate a markdown formated list of entries, grouped by label.
-- [ ] Optionally pull label from hugo/jekyll front matter.
-- [ ] Better feature parity with ctags/universl-ctags/exuberant-ctags
