@@ -52,6 +52,31 @@ recipe	diary/2006-01-03.md	5;"	kind:label	line:5
 * [02 Mon](diary/2006-01-02.md) - 02 Monday
 			`,
 		},
+		{
+			`no heading`,
+			`
+recipe	diary/2006-01-04.md	5;"	kind:label	line:5
+			`,
+			`
+# 2006
+
+## January
+* [04 Wed](diary/2006-01-04.md)
+			`,
+		},
+		{
+			`heading and label on same line`,
+			`
+Tantanmen :recipe:	diary/2006-01-03.md	1;"	kind:heading	line:1
+recipe	diary/2006-01-03.md	1;"	kind:label	line:1
+			`,
+			`
+# 2006
+
+## January
+* [03 Tue](diary/2006-01-03.md) - Tantanmen :recipe:
+			`,
+		},
 	}
 
 	for _, tc := range cases {
