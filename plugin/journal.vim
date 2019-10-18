@@ -26,8 +26,8 @@ if !exists('g:journal_timeline_file')
   let g:journal_timeline_file = 'timeline.md'
 endif
 
-if !exists('g:journal_lables_file')
-  let g:journal_lables_file = 'lables.md'
+if !exists('g:journal_labels_file')
+  let g:journal_labels_file = 'labels.md'
 endif
 
 function! s:delete_section(start_pattern, end_pattern)
