@@ -1,0 +1,86 @@
+*journal.txt*  A markdown journal helper
+
+Journal - Table of Contents                                *journal* *journal-toc*
+==============================================================================
+
+  1. Introduction                                                |journal-intro|
+  2. Commands                                                 |journal-commands|
+  3. Options                                                   |journal-options|
+
+1. Introduction                                                  *journal-intro*
+==============================================================================
+
+This plugin is designed to make keeping a markdown journal easier. It provides
+commands for generating indexes of dated markdown files, giving you a high
+level view of the journal's contents.
+
+This plugin also allows you to label sections of markdown. You can also think
+of labels as keywords or tags. They can appear anywhere in a markdown file
+(except for code blocks and code fences). The syntax looks like this: >
+  # Heading
+
+  :label:
+
+  Content goes here.
+<
+In this example, the section titled "Heading" would be assigned a label,
+"label". Any combination of letters, digits, underscores (`_`), and dashes
+(`-`) between to colons (`:`) creates a label.
+
+2. Commands                                                   *journal-commands*
+==============================================================================
+
+*:JournalTimeline*
+  Write a markdown formatted timeline of entries to the current buffer. If
+  |g:journal_timeline_file| is set, write to the specified file instead of the
+  current buffer.
+
+*:JournalLabels*
+  Write a markdown formatted list of entries grouped by label to the current
+  buffer. If |g:journal_labels_file| is set, write to the specified file
+  instead of the current buffer.
+
+*:JournalToday*
+  Open journal file for today.
+
+3. Options                                                     *journal-options*
+==============================================================================
+
+*g:journal_timeline_cmd*
+  Subcommand and options to pass to the `markdown-journal` executable for
+  the timeline view.
+
+  Default is `'timeline --level=2'`.
+
+*g:journal_labels_cmd*
+  Subcommand and options to pass to the `markdown-journal` executable for
+  the labels view.
+
+  Default is `'labels --level=2'`.
+
+*g:journal_timeline_heading*
+  Heading to give to timeline view.
+
+  Default is `'# Timeline'`.
+
+*g:journal_labels_heading*
+  Heading to give to labels view.
+
+  Default is `'# Labels'`.
+
+*g:journal_timeline_file*
+
+  File to open when writing timeline view. If set to an empty string, timeline
+  view will be written to the current buffer.
+
+  Default is `'timeline.md'`.
+
+*g:journal_labels_file*
+
+  File to open when writing labels view. If set to an empty string, labels view
+  will be written to the current buffer.
+
+  Default is `'labels.md'`.
+
+
+vim:tw=78:sw=2:ts=2:ft=help:norl:nowrap:
