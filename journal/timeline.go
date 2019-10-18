@@ -3,26 +3,36 @@ package journal
 import (
 	"fmt"
 	"io"
+	"strings"
 	"time"
 )
 
 // WriteTimeline generates a timeline view of entries and writes the result to
 // a writer.
-func (j Journal) WriteTimeline(w io.Writer) error {
+func (j Journal) WriteTimeline(w io.Writer, setters ...WriterOption) error {
 	var year int
 	var month time.Month
 
+	opts := &WriterOptions{
+		Level: 1,
+	}
+
+	for _, setter := range setters {
+		setter(opts)
+	}
+
+	baseHeadingDelim := strings.Repeat("#", opts.Level)
 	for _, entry := range j.Entries {
 		// Write new year when it changes
 		if year != entry.Time.Year() {
 			year = entry.Time.Year()
-			fmt.Fprintf(w, "\n# %s\n", entry.Time.Format(yearFormat))
+			fmt.Fprintf(w, "\n%s %s\n", baseHeadingDelim, entry.Time.Format(yearFormat))
 		}
 
 		// Write new month when it changes
 		if month != entry.Time.Month() {
 			month = entry.Time.Month()
-			fmt.Fprintf(w, "\n## %s\n", entry.Time.Format(monthFormat))
+			fmt.Fprintf(w, "\n%s# %s\n", baseHeadingDelim, entry.Time.Format(monthFormat))
 		}
 
 		// Write day, and link to the entry

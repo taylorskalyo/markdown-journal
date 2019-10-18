@@ -17,6 +17,9 @@ func init() {
 
 	recurseDesc := `recurse into directories`
 	timelineCommand.Flags().BoolVarP(&recurse, "recurse", "R", false, recurseDesc)
+
+	levelDesc := `base heading level`
+	timelineCommand.Flags().IntVarP(&level, "level", "H", 1, levelDesc)
 }
 
 var timelineCommand = &cobra.Command{
@@ -50,6 +53,6 @@ var timelineCommand = &cobra.Command{
 		}
 
 		j := journal.NewJournal(tagLines)
-		j.WriteTimeline(os.Stdout)
+		j.WriteTimeline(os.Stdout, journal.HeadingLevel(level))
 	},
 }

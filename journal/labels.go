@@ -3,13 +3,23 @@ package journal
 import (
 	"fmt"
 	"io"
+	"strings"
 )
 
 // WriteLabels generates a list of entries categorized by label and writes the
 // result to a writer.
-func (j Journal) WriteLabels(w io.Writer) error {
+func (j Journal) WriteLabels(w io.Writer, setters ...WriterOption) error {
+	opts := &WriterOptions{
+		Level: 1,
+	}
+
+	for _, setter := range setters {
+		setter(opts)
+	}
+
+	baseHeadingDelim := strings.Repeat("#", opts.Level)
 	for _, label := range j.Labels {
-		fmt.Fprintf(w, "\n# %s\n", label.Name)
+		fmt.Fprintf(w, "\n%s %s\n", baseHeadingDelim, label.Name)
 
 		for _, occur := range label.Occurrences {
 			var name string

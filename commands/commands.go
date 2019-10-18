@@ -12,6 +12,7 @@ import (
 var (
 	tagfileName string
 	recurse     bool
+	level       int
 )
 
 var application = &cobra.Command{

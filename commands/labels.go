@@ -17,6 +17,9 @@ func init() {
 
 	recurseDesc := `recurse into directories`
 	labelsCommand.Flags().BoolVarP(&recurse, "recurse", "R", false, recurseDesc)
+
+	levelDesc := `base heading level`
+	labelsCommand.Flags().IntVarP(&level, "level", "H", 1, levelDesc)
 }
 
 var labelsCommand = &cobra.Command{
@@ -50,6 +53,6 @@ var labelsCommand = &cobra.Command{
 		}
 
 		j := journal.NewJournal(tagLines)
-		j.WriteLabels(os.Stdout)
+		j.WriteLabels(os.Stdout, journal.HeadingLevel(level))
 	},
 }

@@ -39,6 +39,14 @@ type TagLines []ctags.TagLine
 // LabelOccurrences attaches the methods of sort.Interface to []LabelTag.
 type LabelOccurrences []LabelTag
 
+// WriterOptions stores options for write functions.
+type WriterOptions struct {
+	Level int
+}
+
+// WriterOption appplies an option to a WriterOptions struct.
+type WriterOption func(*WriterOptions)
+
 type tagNode struct {
 	ctags.TagLine
 	next *tagNode
@@ -129,6 +137,13 @@ func Files(paths []string, recurse bool) (entries []string, err error) {
 	}
 
 	return entries, err
+}
+
+// HeadingLevel sets the Level WriterOption value.
+func HeadingLevel(level int) WriterOption {
+	return func(opts *WriterOptions) {
+		opts.Level = level
+	}
 }
 
 func isJournalFile(file string) bool {
