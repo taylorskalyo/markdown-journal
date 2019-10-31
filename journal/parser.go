@@ -3,7 +3,6 @@ package journal
 import (
 	"fmt"
 	"io/ioutil"
-	"strings"
 
 	"github.com/taylorskalyo/markdown-journal/ctags"
 	"github.com/taylorskalyo/markdown-journal/markdown/extension"
@@ -57,7 +56,9 @@ func (p FileParser) parse(filename string, source []byte) (lines []ctags.TagLine
 	reader.SetPosition(0, text.Segment{})
 	reader.ResetPosition()
 
-	_, pos := reader.Position()
+	isTitleFound := false
+
+	line, pos := reader.Position()
 	err = gast.Walk(tree, func(n gast.Node, entering bool) (gast.WalkStatus, error) {
 		s := gast.WalkStatus(gast.WalkContinue)
 
@@ -65,42 +66,39 @@ func (p FileParser) parse(filename string, source []byte) (lines []ctags.TagLine
 			return s, nil
 		}
 
-		if t, ok := n.(*ast.Label); ok {
-			segment := t.Value.Segment
-			reader.Advance(segment.Start - pos.Start)
-			_, pos = reader.Position()
+		var segment text.Segment
+		var tagFields = ctags.TagFields{}
 
-			tl := parseNode(reader, n)
-			tl.TagFile = filename
-			if t.Heading != nil {
-				heading := string(t.Heading.Text(reader.Source()))
-				tl.TagFields["heading"] = heading
+		switch v := n.(type) {
+		case *ast.Label:
+			segment = v.Value.Segment
+			heading := string(v.Heading.Text(reader.Source()))
+			tagFields["heading"] = heading
+			tagFields["kind"] = "label"
+		case *gast.Heading:
+			if isTitleFound {
+				return s, nil
 			}
-			lines = append(lines, tl)
-		} else if h, ok := n.(*gast.Heading); ok {
-			segment := h.Lines().At(0)
-			reader.Advance(segment.Start - pos.Start)
-			_, pos = reader.Position()
-
-			tl := parseNode(reader, n)
-			tl.TagFile = filename
-			lines = append(lines, tl)
+			isTitleFound = true
+			segment = v.Lines().At(0)
+			tagFields["kind"] = "title"
+		default:
+			return s, nil
 		}
+
+		reader.Advance(segment.Start - pos.Start)
+		line, pos = reader.Position()
+		tagFields["line"] = fmt.Sprintf("%d", line+1)
+		tl := ctags.TagLine{
+			TagName:    string(n.Text(reader.Source())),
+			TagFile:    filename,
+			TagAddress: fmt.Sprintf("%d", line+1),
+			TagFields:  tagFields,
+		}
+		lines = append(lines, tl)
 
 		return s, nil
 	})
 
 	return lines, err
-}
-
-func parseNode(reader text.Reader, n gast.Node) ctags.TagLine {
-	line, _ := reader.Position()
-	return ctags.TagLine{
-		TagName:    string(n.Text(reader.Source())),
-		TagAddress: fmt.Sprintf("%d", line+1),
-		TagFields: ctags.TagFields{
-			"line": fmt.Sprintf("%d", line+1),
-			"kind": strings.ToLower(n.Kind().String()),
-		},
-	}
 }

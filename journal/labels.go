@@ -28,9 +28,8 @@ func (j Journal) WriteLabels(w io.Writer, setters ...WriterOption) error {
 			if line := occur.Line(); line >= 0 {
 				location = fmt.Sprintf("%s:%d", location, line)
 			}
-			section := occur.section()
-			if section != nil {
-				name = section.TagName
+			if h, ok := occur.TagFields["heading"]; ok {
+				name = h
 			} else {
 				name = location
 			}

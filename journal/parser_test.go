@@ -37,7 +37,7 @@ Actual Output:
 :bar:
 			`,
 			`
-Foo	2006-01-02.md	2;"	kind:heading	line:2
+Foo	2006-01-02.md	2;"	kind:title	line:2
 bar	2006-01-02.md	4;"	heading:Foo	kind:label	line:4
 			`,
 		},
@@ -46,7 +46,7 @@ bar	2006-01-02.md	4;"	heading:Foo	kind:label	line:4
 			`2006-01-02.md`,
 			"# Foo\n```\n:bar:\n```",
 			`
-Foo	2006-01-02.md	1;"	kind:heading	line:1
+Foo	2006-01-02.md	1;"	kind:title	line:1
 			`,
 		},
 		{
@@ -56,7 +56,7 @@ Foo	2006-01-02.md	1;"	kind:heading	line:1
 # Foo :bar:
 			`,
 			`
-Foo bar	2006-01-02.md	2;"	kind:heading	line:2
+Foo bar	2006-01-02.md	2;"	kind:title	line:2
 bar	2006-01-02.md	2;"	heading:Foo bar	kind:label	line:2
 			`,
 		},

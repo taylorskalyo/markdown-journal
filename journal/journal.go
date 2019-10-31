@@ -165,7 +165,7 @@ func (t TagLines) Less(i, j int) bool {
 		return a.Line() < b.Line()
 	}
 
-	return a.Kind() == "heading"
+	return a.Kind() == "title"
 }
 
 func (lo LabelOccurrences) Len() int      { return len(lo) }
@@ -189,7 +189,7 @@ func (lo LabelOccurrences) Less(i, j int) bool {
 
 func (t tagNode) section() *tagNode {
 	for n := t.prev; n != nil; n = n.prev {
-		if n.Kind() == "heading" {
+		if n.Kind() == "title" {
 			return n
 		}
 	}

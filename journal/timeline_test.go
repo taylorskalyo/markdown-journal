@@ -30,11 +30,11 @@ Actual Output:
 		{
 			`basics`,
 			`
-02 Monday	diary/2006-01-02.md	1;"	kind:heading	line:1
-03 Tuesday	diary/2006-01-03.md	1;"	kind:heading	line:1
-recipe	diary/2006-01-03.md	5;"	kind:label	line:5
-05 Sunday	diary/2006-02-05.md	1;"	kind:heading	line:1
-30 Friday	diary/2007-11-30.md	1;"	kind:heading	line:1
+02 Monday	diary/2006-01-02.md	1;"	kind:title	line:1
+03 Tuesday	diary/2006-01-03.md	1;"	kind:title	line:1
+recipe	diary/2006-01-03.md	5;"	heading:03 Tuesday	kind:label	line:5
+05 Sunday	diary/2006-02-05.md	1;"	kind:title	line:1
+30 Friday	diary/2007-11-30.md	1;"	kind:title	line:1
 			`,
 			`
 # 2007
@@ -67,7 +67,7 @@ recipe	diary/2006-01-04.md	5;"	kind:label	line:5
 		{
 			`heading and label on same line`,
 			`
-Tantanmen recipe	diary/2006-01-03.md	1;"	kind:heading	line:1
+Tantanmen recipe	diary/2006-01-03.md	1;"	kind:title	line:1
 recipe	diary/2006-01-03.md	1;"	kind:label	line:1
 			`,
 			`

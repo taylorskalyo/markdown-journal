@@ -49,7 +49,7 @@ func NewEntry(file string) (e Entry, err error) {
 // is capitalized.
 func (e Entry) Title() string {
 	for n := e.FirstTag; n != nil; n = n.next {
-		if n.Kind() == "heading" {
+		if n.Kind() == "title" {
 			return n.TagName
 		}
 	}
