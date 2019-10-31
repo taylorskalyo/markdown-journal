@@ -72,6 +72,10 @@ func (p FileParser) parse(filename string, source []byte) (lines []ctags.TagLine
 
 			tl := parseNode(reader, n)
 			tl.TagFile = filename
+			if t.Heading != nil {
+				heading := string(t.Heading.Text(reader.Source()))
+				tl.TagFields["heading"] = heading
+			}
 			lines = append(lines, tl)
 		} else if h, ok := n.(*gast.Heading); ok {
 			segment := h.Lines().At(0)

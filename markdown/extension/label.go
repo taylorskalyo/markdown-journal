@@ -75,6 +75,9 @@ func (s *labelParser) Parse(parent gast.Node, block text.Reader, pc parser.Conte
 	value := gast.NewTextSegment(labelSegment)
 	node := ast.NewLabel(value)
 	gast.MergeOrAppendTextSegment(node, labelSegment)
+
+	node.Heading = heading(parent)
+
 	block.Advance(stop + 1)
 	return node
 }
@@ -118,4 +121,18 @@ func (e *label) Extend(m goldmark.Markdown) {
 	m.Renderer().AddOptions(renderer.WithNodeRenderers(
 		util.Prioritized(NewLabelHTMLRenderer(), 0),
 	))
+}
+
+// heading finds the heading under which a node is nested. If the node is not
+// nested under a heading, nil is returned.
+func heading(node gast.Node) *gast.Heading {
+	for n := node; n != nil; n = n.Parent() {
+		for s := n; s != nil; s = s.PreviousSibling() {
+			if h, ok := s.(*gast.Heading); ok {
+				return h
+			}
+		}
+	}
+
+	return nil
 }

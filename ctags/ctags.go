@@ -15,6 +15,15 @@ const (
 	tagAddressPosition
 )
 
+var escapeMap = []struct {
+	escaped, raw string
+}{
+	{`\\`, "\\"},
+	{`\n`, "\n"},
+	{`\r`, "\r"},
+	{`\t`, "\t"},
+}
+
 // TagFields is a map of name/value pairs.
 type TagFields map[string]string
 
@@ -70,12 +79,7 @@ func parseTagField(data string) (string, string) {
 		return "", ""
 	}
 
-	value = strings.ReplaceAll(value, `\t`, "\t")
-	value = strings.ReplaceAll(value, `\r`, "\r")
-	value = strings.ReplaceAll(value, `\n`, "\n")
-	value = strings.ReplaceAll(value, `\\`, `\`)
-
-	return name, value
+	return name, unescape(value)
 }
 
 func parseTagLine(data string) (tl TagLine) {
@@ -161,7 +165,7 @@ func (tl TagLine) String() string {
 	sort.Strings(keys)
 
 	for _, key := range keys {
-		value := tl.TagFields[key]
+		value := escape(tl.TagFields[key])
 		properties = append(properties, fmt.Sprintf("%s:%s", key, value))
 	}
 
@@ -220,4 +224,26 @@ func (w Writer) WriteAll(lines []TagLine) (err error) {
 	}
 
 	return w.Flush()
+}
+
+func escape(s string) string {
+	// Order matters. For example, given `\	` (backslash followed by tab), we
+	// need to escape the slash before the tab. Otherwise we end up with extra
+	// slashes ("\\\\t" vs the correct result: "\\\t").
+	for _, e := range escapeMap {
+		s = strings.ReplaceAll(s, e.raw, e.escaped)
+	}
+
+	return s
+}
+
+func unescape(s string) string {
+	// Unescape in reverse order. For example, given `\\\t`, we need to unescape
+	// "\t" before we unescape "\\".
+	for i := len(escapeMap) - 1; i >= 0; i-- {
+		e := escapeMap[i]
+		s = strings.ReplaceAll(s, e.escaped, e.raw)
+	}
+
+	return s
 }

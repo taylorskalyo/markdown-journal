@@ -28,7 +28,7 @@ func TestReadWrite(t *testing.T) {
 		{
 			`ctags format example 1`,
 			`asdf	sub.cc	/^asdf()$/;"	new_field:some\svalue	file:` + "\n",
-			`asdf	sub.cc	/^asdf()$/;"	file:	new_field:some\svalue` + "\n",
+			`asdf	sub.cc	/^asdf()$/;"	file:	new_field:some\\svalue` + "\n",
 		},
 		{
 			`ctags format example 2`,
@@ -69,6 +69,13 @@ func TestReadWrite(t *testing.T) {
 			`tagfield empty name and value`,
 			`foo	foo	1;"	:	foo:bar` + "\n",
 			`foo	foo	1;"	foo:bar` + "\n",
+		},
+		{
+			// tagaddress contains a backslash ("\\") followed by the character "t".
+			// tagfields contains a newline ("\n"), backslash ("\\"), and tab ("\t")
+			`escape characters`,
+			`foo	foo	/^\\t$/;"	foo:bar\n\\\t` + "\n",
+			`foo	foo	/^\\t$/;"	foo:bar\n\\\t` + "\n",
 		},
 	}
 

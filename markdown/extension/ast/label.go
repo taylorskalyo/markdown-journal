@@ -8,7 +8,8 @@ import (
 // A Label struct represents a label.
 type Label struct {
 	gast.BaseInline
-	Value *gast.Text
+	Value   *gast.Text
+	Heading *gast.Heading
 }
 
 // Dump implements Node.Dump.

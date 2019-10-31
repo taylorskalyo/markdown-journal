@@ -38,7 +38,7 @@ Actual Output:
 			`,
 			`
 Foo	2006-01-02.md	2;"	kind:heading	line:2
-bar	2006-01-02.md	4;"	kind:label	line:4
+bar	2006-01-02.md	4;"	heading:Foo	kind:label	line:4
 			`,
 		},
 		{
@@ -57,7 +57,7 @@ Foo	2006-01-02.md	1;"	kind:heading	line:1
 			`,
 			`
 Foo bar	2006-01-02.md	2;"	kind:heading	line:2
-bar	2006-01-02.md	2;"	kind:label	line:2
+bar	2006-01-02.md	2;"	heading:Foo bar	kind:label	line:2
 			`,
 		},
 	}
