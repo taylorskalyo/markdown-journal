@@ -68,20 +68,31 @@ func newJournal(args []string) (j journal.Journal, err error) {
 	var filenames []string
 	var tagLines []ctags.TagLine
 
-	if tagfileName == "" {
-		if len(args) > 0 {
-			filenames, err = journal.Files(args, recurse)
-		} else {
-			filenames, err = journal.Files([]string{"."}, recurse)
-		}
-		if err != nil {
-			log.Fatal(err)
-		}
+	if len(args) > 0 {
+		filenames, err = journal.Files(args, recurse)
+	} else {
+		filenames, err = journal.Files([]string{"."}, recurse)
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	if tagfileName == "" {
 		tagLines, err = generateCtags(filenames)
 	} else {
 		tagLines, err = readCtags(tagfileName)
 	}
+
+	// Some files may not have any labels or headings and therefore no ctags
+	// entries. Ensure every file has at least one ctags entry.
+	fileTagLines := make([]ctags.TagLine, len(filenames))
+	for i, filename := range filenames {
+		fileTagLines[i] = ctags.TagLine{
+			TagFile:   filename,
+			TagFields: ctags.TagFields{"line": "0"},
+		}
+	}
+	tagLines = append(tagLines, fileTagLines...)
 
 	return journal.NewJournal(tagLines), err
 }
