@@ -72,8 +72,10 @@ func (p FileParser) parse(filename string, source []byte) (lines []ctags.TagLine
 		switch v := n.(type) {
 		case *ast.Label:
 			segment = v.Value.Segment
-			heading := string(v.Heading.Text(reader.Source()))
-			tagFields["heading"] = heading
+			if v.Heading != nil {
+				heading := string(v.Heading.Text(reader.Source()))
+				tagFields["heading"] = heading
+			}
 			tagFields["kind"] = "label"
 		case *gast.Heading:
 			if isTitleFound {
