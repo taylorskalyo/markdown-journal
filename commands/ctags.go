@@ -45,13 +45,9 @@ var ctagsCommand = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		for _, filename := range filenames {
-			p := journal.NewFileParser()
-			lines, err := p.Parse(filename)
-			if err != nil {
-				log.Fatal(err)
-			}
-			tagLines = append(tagLines, lines...)
+		tagLines, err = generateCtags(filenames)
+		if err != nil {
+			log.Fatal(err)
 		}
 
 		if tagfileName == "-" {

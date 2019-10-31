@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -61,4 +62,26 @@ func generateCtags(filenames []string) (tagLines []ctags.TagLine, err error) {
 	}
 
 	return tagLines, err
+}
+
+func newJournal(args []string) (j journal.Journal, err error) {
+	var filenames []string
+	var tagLines []ctags.TagLine
+
+	if tagfileName == "" {
+		if len(args) > 0 {
+			filenames, err = journal.Files(args, recurse)
+		} else {
+			filenames, err = journal.Files([]string{"."}, recurse)
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		tagLines, err = generateCtags(filenames)
+	} else {
+		tagLines, err = readCtags(tagfileName)
+	}
+
+	return journal.NewJournal(tagLines), err
 }

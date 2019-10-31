@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/taylorskalyo/markdown-journal/ctags"
 	"github.com/taylorskalyo/markdown-journal/journal"
 )
 
@@ -28,31 +27,10 @@ var timelineCommand = &cobra.Command{
 	Long:  `This command displays a timeline view of journal entries.`,
 	Args:  cobra.ArbitraryArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		var filenames []string
-		var tagLines []ctags.TagLine
-		var err error
-
-		if tagfileName == "" {
-
-			if len(args) > 0 {
-				filenames, err = journal.Files(args, recurse)
-			} else {
-				filenames, err = journal.Files([]string{"."}, recurse)
-			}
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			tagLines, err = generateCtags(filenames)
-		} else {
-
-			tagLines, err = readCtags(tagfileName)
-		}
+		j, err := newJournal(args)
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		j := journal.NewJournal(tagLines)
 		j.WriteTimeline(os.Stdout, journal.HeadingLevel(level))
 	},
 }
