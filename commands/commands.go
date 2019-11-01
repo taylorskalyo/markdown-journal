@@ -73,7 +73,7 @@ func newJournal(filenames []string) (j journal.Journal, err error) {
 		journalFiles, err = journal.Files([]string{"."}, recurse)
 	}
 	if err != nil {
-		return tagLines, err
+		return j, err
 	}
 
 	if tagfileName == "" {
@@ -82,7 +82,7 @@ func newJournal(filenames []string) (j journal.Journal, err error) {
 		tagLines, err = readCtags(tagfileName)
 	}
 	if err != nil {
-		return tagLines, err
+		return j, err
 	}
 
 	// Some files may not have any labels or headings and therefore no ctags
