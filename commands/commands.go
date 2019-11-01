@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -74,13 +73,16 @@ func newJournal(filenames []string) (j journal.Journal, err error) {
 		journalFiles, err = journal.Files([]string{"."}, recurse)
 	}
 	if err != nil {
-		log.Fatal(err)
+		return tagLines, err
 	}
 
 	if tagfileName == "" {
 		tagLines, err = generateCtags(journalFiles)
 	} else {
 		tagLines, err = readCtags(tagfileName)
+	}
+	if err != nil {
+		return tagLines, err
 	}
 
 	// Some files may not have any labels or headings and therefore no ctags
@@ -94,5 +96,5 @@ func newJournal(filenames []string) (j journal.Journal, err error) {
 	}
 	tagLines = append(tagLines, fileTagLines...)
 
-	return journal.NewJournal(tagLines), err
+	return journal.NewJournal(tagLines), nil
 }
