@@ -31,21 +31,21 @@ var ctagsCommand = &cobra.Command{
 	Long:  `This command generates a ctags compatible tags file.`,
 	Args:  cobra.ArbitraryArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		var filenames []string
+		var journalFiles []string
 		var tagLines []ctags.TagLine
 		var err error
 		var tagfile *os.File
 
 		if len(args) > 0 {
-			filenames, err = journal.Files(args, recurse)
+			journalFiles, err = journal.Files(args, recurse)
 		} else {
-			filenames, err = journal.Files([]string{"."}, recurse)
+			journalFiles, err = journal.Files([]string{"."}, recurse)
 		}
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		tagLines, err = generateCtags(filenames)
+		tagLines, err = generateCtags(journalFiles)
 		if err != nil {
 			log.Fatal(err)
 		}
