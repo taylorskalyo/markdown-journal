@@ -18,6 +18,12 @@ markdown-journal timeline
 markdown-journal --help
 ```
 
+Works with vim too!
+
+```vim
+Plug 'taylorskalyo/markdown-journal'
+```
+
 # Features
 
 `markdown-journal` makes viewing and exploring markdown journals easier.
@@ -41,13 +47,7 @@ By default, the metadata used to generate the timeline and labels views are gene
 
 ## Vim Integration
 
-This repo includes a plugin for integrating markdown-journal with vim. To install it using vim-plug:
-
-```vim
-Plug 'taylorskalyo/markdown-journal'
-```
-
-See [doc/journal.txt](../blob/master/doc/journal.txt) for a description of the plugin and the commands that it provides.
+This repo includes a plugin for integrating markdown-journal with vim. See [doc/journal.txt](../blob/master/doc/journal.txt) for a description of the plugin and the commands that it provides.
 
 # Anti-features
 
