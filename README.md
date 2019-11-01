@@ -18,26 +18,42 @@ markdown-journal timeline
 markdown-journal --help
 ```
 
-# What markdown-journal is
+# Features
 
 `markdown-journal` makes viewing and exploring markdown journals easier.
 
-- It provides commands for creating indexes of dated markdown files.
-  - The `timeline` command generates a markdown formated index of entries in chronological order.
-  - The `labels` command generates a markdown formated list of entries, grouped by labels.
-- It provides a way to label markdown files. Labels can also be thought of a keywords or categories.
-  - Labels can appear anywhere in a markdown file (except for code blocks and code fences).
-  - Labels look like this: `:label:`.
-  - Any combination of letters, digits, underscores (`_`), and dashes (`-`) between two colons (`:`) creates a label.
-- It generates ctags compatible tag files.
-  - A ctags file can be used to quickly locate journal label and headers.
-  - Other programs can use these ctags files to provide additional functionality (e.g. `tags` command or [tagbar](https://github.com/majutsushi/tagbar) plugin in vim)
+## Timeline View
 
-# What markdown-journal is not
+The timeline view is simply a markdown formatted index of entries, listed in reverse chronological order. It's an easy way to see your most recent entries or go back in time to revisit old entries.
 
-- It is not a markdown editor.
-- It is not a markdown renderer (see [pandoc](https://pandoc.org/), [hugo](https://gohugo.io/), [jekyll](https://jekyllrb.com/), etc).
-- It does not impose a particular directory structure.
-  - Journal entries can be located anywhere.
-  - However, entry file names must begin with a date and end with the markdown extension (i.e. `YYYY-MM-DD*.md`).
-- It does not force you to use a particular markdown flavor.
+## Labels View
+
+markdown-journal provides a way to label markdown files. Labels can also be thought of as keywords or categories.
+- They can appear anywhere in a markdown file (except for code blocks).
+- Labels look like this: `:label:`.
+- Any combination of letters, digits, underscores (`_`), and dashes (`-`) between two colons (`:`) creates a label.
+
+The `labels` command generates a markdown formatted list of entries, grouped by label.
+
+## Ctags Integration
+
+By default, the metadata used to generate the timeline and labels views are generated on the fly. However, they can also be cached in a ctags tags file. Other programs can use the tags file to provide additional functionality (e.g. `tags` command or [tagbar](https://github.com/majutsushi/tagbar) plugin in vim)
+
+## Vim Integration
+
+This repo includes a plugin for integrating markdown-journal with vim. To install it using vim-plug:
+
+```vim
+Plug 'taylorskalyo/markdown-journal'
+```
+
+See [doc/journal.txt](../blob/master/doc/journal.txt) for a description of the plugin and the commands that it provides.
+
+# Anti-features
+
+markdown-journal...
+
+- is not a markdown editor.
+- is not a markdown renderer (see [pandoc](https://pandoc.org/), [hugo](https://gohugo.io/), [jekyll](https://jekyllrb.com/), etc).
+- does not impose a particular directory structure. Journal entries can be located anywhere. However, entry file names must begin with a date and end with the markdown extension (i.e. `YYYY-MM-DD*.md`).
+- does not force you to use a particular markdown flavor.
