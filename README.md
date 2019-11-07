@@ -21,7 +21,17 @@ markdown-journal --help
 Works with vim too!
 
 ```vim
+" Install
 Plug 'taylorskalyo/markdown-journal'
+
+" Create a new journal entry
+:JournalToday
+
+" Display journal entries in a timeline view
+:JournalTimeline
+
+" Learn more
+:help journal
 ```
 
 # Features
