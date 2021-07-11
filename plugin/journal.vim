@@ -80,8 +80,10 @@ function! s:timeline()
     call s:open_file(g:journal_timeline_file)
   endif
 
+  let old_pos = line('.')
   let pos = s:delete_section('^' . g:journal_timeline_heading, '^# ')
   call append(pos, s:timeline_contents())
+  execute 'normal ' . old_pos . 'G'
 endfunction
 
 function! s:labels()
@@ -94,8 +96,10 @@ function! s:labels()
     call s:open_file(g:journal_labels_file)
   endif
 
+  let old_pos = line('.')
   let pos = s:delete_section('^' . g:journal_labels_heading, '^# ')
   call append(pos, s:labels_contents())
+  execute 'normal ' . old_pos . 'G'
 endfunction
 
 function! s:today()
