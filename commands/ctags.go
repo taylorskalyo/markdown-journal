@@ -10,13 +10,16 @@ import (
 	"github.com/taylorskalyo/markdown-journal/journal"
 )
 
-var nosort bool
+var (
+	nosort           bool
+	ctagsTagfileName string
+)
 
 func init() {
 	application.AddCommand(ctagsCommand)
 
 	tagfileDesc := `write tags to specified file; "-" writes tags to stdout`
-	ctagsCommand.Flags().StringVarP(&tagfileName, "tagfile", "f", "tags", tagfileDesc)
+	ctagsCommand.Flags().StringVarP(&ctagsTagfileName, "tagfile", "f", "tags", tagfileDesc)
 
 	nosortDesc := `do not sort tags by tagname`
 	ctagsCommand.Flags().BoolVar(&nosort, "no-sort", false, nosortDesc)
@@ -50,10 +53,10 @@ var ctagsCommand = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		if tagfileName == "-" {
+		if ctagsTagfileName == "-" {
 			tagfile = os.Stdout
 		} else {
-			tagfile, err = os.Create(tagfileName)
+			tagfile, err = os.Create(ctagsTagfileName)
 			if err != nil {
 				log.Fatal(err)
 			}
