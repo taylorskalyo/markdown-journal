@@ -10,6 +10,10 @@ if !exists('g:journal_timeline_cmd')
   let g:journal_timeline_cmd = 'timeline --level=2'
 endif
 
+if !exists('g:journal_label_cmd')
+  let g:journal_label_cmd = 'labels'
+endif
+
 if !exists('g:journal_labels_cmd')
   let g:journal_labels_cmd = 'labels --level=2'
 endif
@@ -64,6 +68,13 @@ function! s:labels_contents()
         \ + systemlist(s:journal_binary . ' ' . g:journal_labels_cmd)
 endfunction
 
+function! s:label_contents(label)
+  let filter_arg = '--filter ' . a:label
+  let contents = systemlist(s:journal_binary . ' ' . g:journal_label_cmd . ' ' . filter_arg)[1:-1]
+  let contents[0] = substitute(contents[0], '^#* *.', '\U&', '')
+  return contents
+endfunction
+
 function! s:open_file(file)
   if buffer_name('%') != a:file
     execute 'edit ' . a:file
@@ -102,10 +113,29 @@ function! s:labels()
   execute 'normal ' . old_pos . 'G'
 endfunction
 
+function! s:label(label)
+  if empty(a:label)
+    return
+  endif
+
+  if !executable(s:journal_binary)
+    echohl WarningMsg | echo s:err_no_binary | echohl None
+    return
+  endif
+
+  call s:open_file(a:label . '.md')
+
+  let old_pos = line('.')
+  let pos = s:delete_section('^' . a:label, '^# ')
+  call append(pos, s:label_contents(a:label))
+  execute 'normal ' . old_pos . 'G'
+endfunction
+
 function! s:today()
   call s:open_file(strftime('%Y-%m-%d.md'))
 endfunction
 
 command! -nargs=0 JournalTimeline call s:timeline()
-command! -nargs=0 JournalLabels call s:labels()
+command! -nargs=* JournalLabels call s:labels()
+command! -nargs=* JournalLabel call s:label(<q-args>)
 command! -nargs=0 JournalToday call s:today()
