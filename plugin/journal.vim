@@ -135,7 +135,15 @@ function! s:today()
   call s:open_file(strftime('%Y-%m-%d.md'))
 endfunction
 
+function! s:card()
+  let last_card = glob('*-*-*-*.md', 0, 1)[-1]
+  let card_num = substitute(last_card, '\d\{4\}-\d\{2\}-\d\{2\}-\(\d\+\)\.md', '\1', '')
+  let card_num += 1
+  call s:open_file(strftime('%Y-%m-%d-' . card_num . '.md'))
+endfunction
+
 command! -nargs=0 JournalTimeline call s:timeline()
 command! -nargs=* JournalLabels call s:labels()
 command! -nargs=* JournalLabel call s:label(<q-args>)
 command! -nargs=0 JournalToday call s:today()
+command! -nargs=0 JournalCard call s:card()
