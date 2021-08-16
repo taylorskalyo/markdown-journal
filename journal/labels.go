@@ -3,6 +3,7 @@ package journal
 import (
 	"fmt"
 	"io"
+	"regexp"
 	"strings"
 )
 
@@ -18,7 +19,15 @@ func (j Journal) WriteLabels(w io.Writer, setters ...WriterOption) error {
 	}
 
 	baseHeadingDelim := strings.Repeat("#", opts.Level)
+
 	for _, label := range j.Labels {
+		shouldFilter, err := filterLabel(opts.LabelFilters, label.Name)
+		if err != nil {
+			return err
+		} else if shouldFilter {
+			continue
+		}
+
 		fmt.Fprintf(w, "\n%s %s\n", baseHeadingDelim, label.Name)
 
 		for _, occur := range label.Occurrences {
@@ -38,4 +47,22 @@ func (j Journal) WriteLabels(w io.Writer, setters ...WriterOption) error {
 	}
 
 	return nil
+}
+
+func filterLabel(filters []string, label string) (bool, error) {
+	var shouldFilter bool
+
+	for _, filter := range filters {
+		r, err := regexp.Compile(filter)
+		if err != nil {
+			return false, err
+		}
+
+		if !r.Match([]byte(label)) {
+			shouldFilter = true
+			break
+		}
+	}
+
+	return shouldFilter, nil
 }

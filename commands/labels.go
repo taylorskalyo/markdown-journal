@@ -19,6 +19,9 @@ func init() {
 
 	levelDesc := `base heading level`
 	labelsCommand.Flags().IntVarP(&level, "level", "H", 1, levelDesc)
+
+	filterDesc := `filter`
+	labelsCommand.Flags().StringArrayVarP(&filters, "filter", "Q", []string{}, filterDesc)
 }
 
 var labelsCommand = &cobra.Command{
@@ -31,6 +34,10 @@ var labelsCommand = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		j.WriteLabels(os.Stdout, journal.HeadingLevel(level))
+		j.WriteLabels(
+			os.Stdout,
+			journal.HeadingLevel(level),
+			journal.LabelFilters(filters),
+		)
 	},
 }

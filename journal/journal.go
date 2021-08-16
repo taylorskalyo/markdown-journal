@@ -41,7 +41,8 @@ type LabelOccurrences []LabelTag
 
 // WriterOptions stores options for write functions.
 type WriterOptions struct {
-	Level int
+	Level        int
+	LabelFilters []string
 }
 
 // WriterOption appplies an option to a WriterOptions struct.
@@ -143,6 +144,13 @@ func Files(paths []string, recurse bool) (entries []string, err error) {
 func HeadingLevel(level int) WriterOption {
 	return func(opts *WriterOptions) {
 		opts.Level = level
+	}
+}
+
+// LabelFilters sets the LabelFilters WriterOption value.
+func LabelFilters(filters []string) WriterOption {
+	return func(opts *WriterOptions) {
+		opts.LabelFilters = filters
 	}
 }
 

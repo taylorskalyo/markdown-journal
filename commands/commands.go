@@ -13,6 +13,7 @@ var (
 	tagfileName string
 	recurse     bool
 	level       int
+	filters     []string
 )
 
 var application = &cobra.Command{
