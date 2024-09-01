@@ -6,7 +6,7 @@ A markdown journaling helper
 
 ```bash
 # Install
-go get github.com/taylorskalyo/markdown-journal
+go install github.com/taylorskalyo/markdown-journal@latest
 
 # Create a new journal entry
 echo "# Hello World" > "$(date +%Y-%m-%d).md"
